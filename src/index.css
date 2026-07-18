@@ -1,0 +1,268 @@
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap");
+@import "tailwindcss";
+
+/* ===========================
+   RESET
+=========================== */
+
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+    font-family:"Inter",sans-serif;
+}
+
+html,
+body,
+#root{
+    width:100%;
+    min-height:100%;
+    overflow-x:hidden;
+}
+
+body{
+    color:white;
+    background:
+        radial-gradient(circle at 18% 16%, rgba(59,130,246,.28), transparent 30%),
+        radial-gradient(circle at 82% 12%, rgba(99,102,241,.24), transparent 28%),
+        radial-gradient(circle at 50% 100%, rgba(236,72,153,.18), transparent 34%),
+        linear-gradient(180deg, #030615 0%, #060d24 42%, #09143a 100%);
+    background-attachment: fixed;
+}
+
+/* ===========================
+   Aurora
+=========================== */
+
+body::before{
+    content:"";
+    position:fixed;
+    inset:-20%;
+    z-index:-2;
+    filter:blur(100px);
+    opacity:.95;
+    background:
+        radial-gradient(circle at 20% 20%, rgba(96,165,250,.28), transparent 32%),
+        radial-gradient(circle at 78% 18%, rgba(168,85,247,.24), transparent 30%),
+        radial-gradient(circle at 50% 82%, rgba(249,115,22,.18), transparent 28%);
+}
+
+/* ===========================
+   Noise
+=========================== */
+
+body::after{
+    content:"";
+    position:fixed;
+    inset:0;
+    pointer-events:none;
+    opacity:.05;
+    background-image:
+        radial-gradient(circle,#ffffff 1px,transparent 1px);
+    background-size:4px 4px;
+}
+
+/* ===========================
+   Main Container
+=========================== */
+
+.dashboard{
+    width: min(100%, 1500px);
+    padding: 18px 20px 90px;
+    margin: auto;
+}
+
+/* ===========================
+   Glass Card
+=========================== */
+
+.glass{
+    background: rgba(10, 18, 49, .64);
+    backdrop-filter: blur(26px);
+    -webkit-backdrop-filter: blur(26px);
+    border:1px solid rgba(255,255,255,.10);
+    border-radius:30px;
+    box-shadow: 0 24px 90px rgba(0,0,0,.32), inset 0 1px 0 rgba(255,255,255,.08);
+}
+
+/* ===========================
+   Premium Card
+=========================== */
+
+.card{
+    transition:.35s ease;
+}
+
+.card:hover{
+    transform:
+        translateY(-8px)
+        scale(1.01);
+    box-shadow:
+        0 25px 60px rgba(0,0,0,.5),
+        0 0 35px rgba(59,130,246,.25);
+}
+
+/* ===========================
+   Buttons
+=========================== */
+
+button{
+    transition:.3s ease;
+}
+
+button:hover{
+    transform:translateY(-2px);
+}
+
+/* ===========================
+   Inputs
+=========================== */
+
+input{
+    color:white;
+}
+
+input::placeholder{
+    color:#CBD5E1;
+}
+
+/* ===========================
+   Titles
+=========================== */
+
+.section-title{
+    font-size:30px;
+    font-weight:800;
+}
+
+.gradient-text{
+    background: linear-gradient(90deg, #82b2ff 0%, #4d8dff 52%, #8ea6ff 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+/* ===========================
+   Weather Icon Animation
+=========================== */
+
+.weather-icon{
+    animation: float 4.5s ease-in-out infinite;
+}
+
+.weather-float{
+    animation: float 4.5s ease-in-out infinite;
+}
+
+@keyframes float{
+    0%, 100% {
+        transform: translateY(0);
+    }
+    50% {
+        transform: translateY(-8px);
+    }
+}
+
+/* ===========================
+   Aurora Animation
+=========================== */
+
+@keyframes aurora{
+    0%{
+        transform:
+        translate(-10%,-10%)
+        rotate(0deg);
+    }
+    50%{
+        transform:
+        translate(8%,6%)
+        rotate(8deg);
+    }
+    100%{
+        transform:
+        translate(-5%,8%)
+        rotate(-8deg);
+    }
+}
+
+/* ===========================
+   Scrollbar
+=========================== */
+
+::-webkit-scrollbar{
+    width:10px;
+}
+
+::-webkit-scrollbar-thumb{
+    background:#3b82f6;
+    border-radius:999px;
+}
+
+::-webkit-scrollbar-track{
+    background:#081229;
+}
+
+.scrollbar-hide::-webkit-scrollbar{
+    display:none;
+}
+
+.scrollbar-hide{
+    scrollbar-width:none;
+    -ms-overflow-style:none;
+}
+
+/* ===========================
+   Shadows
+=========================== */
+
+.shadow-premium{
+    box-shadow:
+        0 20px 60px rgba(0,0,0,.45),
+        inset 0 1px 0 rgba(255,255,255,.10);
+}
+
+/* ===========================
+   Hero Overlay
+=========================== */
+
+.hero-overlay{
+    position:absolute;
+    inset:0;
+    background:
+        linear-gradient(
+            to right,
+            rgba(0,0,0,.65),
+            rgba(0,0,0,.15),
+            rgba(0,0,0,.45)
+        );
+}
+
+/* ===========================
+   Custom Utilities
+=========================== */
+
+.backdrop-glass {
+    background: rgba(15, 23, 42, 0.7);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.icon-glow {
+    filter: drop-shadow(0 0 8px rgba(59, 130, 246, 0.5));
+}
+
+.gradient-border {
+    position: relative;
+    background: rgba(10, 18, 49, 0.5);
+    border: 2px solid transparent;
+    background-clip: padding-box;
+}
+
+.gradient-border::before {
+    content: '';
+    position: absolute;
+    inset: -2px;
+    background: linear-gradient(90deg, #60a5fa, #22d3ee, #3b82f6);
+    border-radius: 20px;
+    z-index: -1;
+}
