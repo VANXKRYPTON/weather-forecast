@@ -2,267 +2,202 @@
 @import "tailwindcss";
 
 /* ===========================
-   RESET
+   RESET & BASE
 =========================== */
 
-*{
-    margin:0;
-    padding:0;
-    box-sizing:border-box;
-    font-family:"Inter",sans-serif;
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
 }
 
 html,
 body,
-#root{
-    width:100%;
-    min-height:100%;
-    overflow-x:hidden;
-}
-
-body{
-    color:white;
-    background:
-        radial-gradient(circle at 18% 16%, rgba(59,130,246,.28), transparent 30%),
-        radial-gradient(circle at 82% 12%, rgba(99,102,241,.24), transparent 28%),
-        radial-gradient(circle at 50% 100%, rgba(236,72,153,.18), transparent 34%),
-        linear-gradient(180deg, #030615 0%, #060d24 42%, #09143a 100%);
-    background-attachment: fixed;
+#root {
+  width: 100%;
+  min-height: 100vh;
+  overflow-x: hidden;
+  background-color: #060a18;
 }
 
 /* ===========================
-   Aurora
+   AURORA GLOW ACCENTS
 =========================== */
 
-body::before{
-    content:"";
-    position:fixed;
-    inset:-20%;
-    z-index:-2;
-    filter:blur(100px);
-    opacity:.95;
-    background:
-        radial-gradient(circle at 20% 20%, rgba(96,165,250,.28), transparent 32%),
-        radial-gradient(circle at 78% 18%, rgba(168,85,247,.24), transparent 30%),
-        radial-gradient(circle at 50% 82%, rgba(249,115,22,.18), transparent 28%);
+.dashboard-wrapper {
+  position: relative;
+  width: min(100%, 1440px);
+  margin: 0 auto;
+  padding: 20px 24px 60px;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+@media (max-width: 768px) {
+  .dashboard-wrapper {
+    padding: 12px 14px 60px;
+  }
 }
 
 /* ===========================
-   Noise
+   GLASSMORPHISM & HOVER GLOW STYLES
 =========================== */
 
-body::after{
-    content:"";
-    position:fixed;
-    inset:0;
-    pointer-events:none;
-    opacity:.05;
-    background-image:
-        radial-gradient(circle,#ffffff 1px,transparent 1px);
-    background-size:4px 4px;
+/* Main Hero Card Glass & Glow */
+.hero-glass-card {
+  background: rgba(12, 19, 44, 0.78);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border: 1px solid rgba(255, 255, 255, 0.10);
+  border-radius: 26px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.48), inset 0 1px 0 rgba(255, 255, 255, 0.08);
+  transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.hero-glass-card:hover {
+  border-color: rgba(59, 130, 246, 0.55);
+  box-shadow: 
+    0 0 35px rgba(59, 130, 246, 0.32), 
+    0 24px 60px rgba(0, 0, 0, 0.6), 
+    inset 0 1px 0 rgba(255, 255, 255, 0.15);
+  transform: translateY(-2px);
+}
+
+/* Right Sidebar Base Card */
+.glass-card-sm {
+  background: rgba(13, 22, 51, 0.75);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.09);
+  border-radius: 22px;
+  box-shadow: 0 14px 40px rgba(0, 0, 0, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.06);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.glass-card-sm:hover {
+  border-color: rgba(96, 165, 250, 0.45);
+  box-shadow: 
+    0 0 25px rgba(59, 130, 246, 0.28), 
+    0 16px 45px rgba(0, 0, 0, 0.48);
+  transform: translateY(-3px);
+}
+
+/* Specific Card Glow on Hover */
+.glow-hover-aqi:hover {
+  border-color: rgba(16, 185, 129, 0.6) !important;
+  box-shadow: 
+    0 0 28px rgba(16, 185, 129, 0.32), 
+    0 16px 45px rgba(0, 0, 0, 0.48) !important;
+  transform: translateY(-3px);
+}
+
+.glow-hover-sun:hover {
+  border-color: rgba(245, 158, 11, 0.6) !important;
+  box-shadow: 
+    0 0 28px rgba(245, 158, 11, 0.32), 
+    0 16px 45px rgba(0, 0, 0, 0.48) !important;
+  transform: translateY(-3px);
+}
+
+.glow-hover-highlights:hover {
+  border-color: rgba(168, 85, 247, 0.6) !important;
+  box-shadow: 
+    0 0 28px rgba(168, 85, 247, 0.32), 
+    0 16px 45px rgba(0, 0, 0, 0.48) !important;
+  transform: translateY(-3px);
+}
+
+/* 5-Day Forecast Main Container Glass */
+.forecast-container-glass {
+  background: rgba(11, 18, 42, 0.80);
+  backdrop-filter: blur(26px);
+  -webkit-backdrop-filter: blur(26px);
+  border: 1px solid rgba(255, 255, 255, 0.10);
+  border-radius: 26px;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.45);
+}
+
+/* Forecast Card - Inactive with Hover Glow */
+.forecast-item-card {
+  background: rgba(14, 23, 53, 0.70);
+  backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 22px;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.forecast-item-card:hover {
+  background: rgba(20, 32, 70, 0.88);
+  border-color: rgba(59, 130, 246, 0.65);
+  box-shadow: 
+    0 0 26px rgba(59, 130, 246, 0.4), 
+    0 12px 30px rgba(0, 0, 0, 0.5);
+  transform: translateY(-4px);
+}
+
+/* Active Highlighted Forecast Card (Sun, Jul 19 style) */
+.forecast-item-active {
+  background: linear-gradient(180deg, rgba(22, 33, 76, 0.95) 0%, rgba(13, 20, 52, 0.95) 100%) !important;
+  border: 1.5px solid rgba(245, 158, 11, 0.88) !important;
+  border-radius: 22px;
+  box-shadow: 
+    0 0 32px rgba(245, 158, 11, 0.45), 
+    0 16px 40px rgba(0, 0, 0, 0.6), 
+    inset 0 1px 1px rgba(255, 255, 255, 0.2) !important;
+  transform: translateY(-4px);
 }
 
 /* ===========================
-   Main Container
+   GRADIENTS & TYPOGRAPHY
 =========================== */
 
-.dashboard{
-    width: min(100%, 1500px);
-    padding: 18px 20px 90px;
-    margin: auto;
+.text-gradient-header {
+  background: linear-gradient(90deg, #5B86E5 0%, #7E69FF 60%, #A259FF 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.temp-orange-text {
+  color: #FF5E3A;
 }
 
 /* ===========================
-   Glass Card
+   ANIMATIONS
 =========================== */
 
-.glass{
-    background: rgba(10, 18, 49, .64);
-    backdrop-filter: blur(26px);
-    -webkit-backdrop-filter: blur(26px);
-    border:1px solid rgba(255,255,255,.10);
-    border-radius:30px;
-    box-shadow: 0 24px 90px rgba(0,0,0,.32), inset 0 1px 0 rgba(255,255,255,.08);
+@keyframes float-gentle {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-5px);
+  }
+}
+
+.animate-float {
+  animation: float-gentle 4s ease-in-out infinite;
 }
 
 /* ===========================
-   Premium Card
+   CUSTOM SCROLLBAR
 =========================== */
 
-.card{
-    transition:.35s ease;
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
 }
 
-.card:hover{
-    transform:
-        translateY(-8px)
-        scale(1.01);
-    box-shadow:
-        0 25px 60px rgba(0,0,0,.5),
-        0 0 35px rgba(59,130,246,.25);
+::-webkit-scrollbar-track {
+  background: rgba(6, 10, 26, 0.8);
 }
 
-/* ===========================
-   Buttons
-=========================== */
-
-button{
-    transition:.3s ease;
+::-webkit-scrollbar-thumb {
+  background: rgba(59, 130, 246, 0.4);
+  border-radius: 999px;
 }
 
-button:hover{
-    transform:translateY(-2px);
-}
-
-/* ===========================
-   Inputs
-=========================== */
-
-input{
-    color:white;
-}
-
-input::placeholder{
-    color:#CBD5E1;
-}
-
-/* ===========================
-   Titles
-=========================== */
-
-.section-title{
-    font-size:30px;
-    font-weight:800;
-}
-
-.gradient-text{
-    background: linear-gradient(90deg, #82b2ff 0%, #4d8dff 52%, #8ea6ff 100%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-}
-
-/* ===========================
-   Weather Icon Animation
-=========================== */
-
-.weather-icon{
-    animation: float 4.5s ease-in-out infinite;
-}
-
-.weather-float{
-    animation: float 4.5s ease-in-out infinite;
-}
-
-@keyframes float{
-    0%, 100% {
-        transform: translateY(0);
-    }
-    50% {
-        transform: translateY(-8px);
-    }
-}
-
-/* ===========================
-   Aurora Animation
-=========================== */
-
-@keyframes aurora{
-    0%{
-        transform:
-        translate(-10%,-10%)
-        rotate(0deg);
-    }
-    50%{
-        transform:
-        translate(8%,6%)
-        rotate(8deg);
-    }
-    100%{
-        transform:
-        translate(-5%,8%)
-        rotate(-8deg);
-    }
-}
-
-/* ===========================
-   Scrollbar
-=========================== */
-
-::-webkit-scrollbar{
-    width:10px;
-}
-
-::-webkit-scrollbar-thumb{
-    background:#3b82f6;
-    border-radius:999px;
-}
-
-::-webkit-scrollbar-track{
-    background:#081229;
-}
-
-.scrollbar-hide::-webkit-scrollbar{
-    display:none;
-}
-
-.scrollbar-hide{
-    scrollbar-width:none;
-    -ms-overflow-style:none;
-}
-
-/* ===========================
-   Shadows
-=========================== */
-
-.shadow-premium{
-    box-shadow:
-        0 20px 60px rgba(0,0,0,.45),
-        inset 0 1px 0 rgba(255,255,255,.10);
-}
-
-/* ===========================
-   Hero Overlay
-=========================== */
-
-.hero-overlay{
-    position:absolute;
-    inset:0;
-    background:
-        linear-gradient(
-            to right,
-            rgba(0,0,0,.65),
-            rgba(0,0,0,.15),
-            rgba(0,0,0,.45)
-        );
-}
-
-/* ===========================
-   Custom Utilities
-=========================== */
-
-.backdrop-glass {
-    background: rgba(15, 23, 42, 0.7);
-    backdrop-filter: blur(20px);
-    -webkit-backdrop-filter: blur(20px);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-}
-
-.icon-glow {
-    filter: drop-shadow(0 0 8px rgba(59, 130, 246, 0.5));
-}
-
-.gradient-border {
-    position: relative;
-    background: rgba(10, 18, 49, 0.5);
-    border: 2px solid transparent;
-    background-clip: padding-box;
-}
-
-.gradient-border::before {
-    content: '';
-    position: absolute;
-    inset: -2px;
-    background: linear-gradient(90deg, #60a5fa, #22d3ee, #3b82f6);
-    border-radius: 20px;
-    z-index: -1;
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(59, 130, 246, 0.7);
 }

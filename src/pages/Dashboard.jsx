@@ -1,433 +1,433 @@
-import { useState } from 'react';
-import { Wind, Droplets, Eye, Sunrise, Sunset } from 'lucide-react';
+import React, { useState, useEffect, useMemo, useCallback } from "react";
+import { Heart, X, Sparkles, Zap } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
 
-const API_KEY = "8f3c77ea4f58f821b75dfe278c671288";
+// Custom Components
+import HeaderNav from "../components/HeaderNav";
+import WelcomeScreen from "../components/WelcomeScreen";
+import HeroWeatherCard from "../components/HeroWeatherCard";
+import AirQualityCard from "../components/AirQualityCard";
+import SunriseSunsetCard from "../components/SunriseSunsetCard";
+import TodayHighlightsCard from "../components/TodayHighlightsCard";
+import ForecastSection from "../components/ForecastSection";
+import HourlyChart from "../components/HourlyChart";
+import DrawerMenu from "../components/DrawerMenu";
+import WeatherMap from "../components/WeatherMap";
 
-export default function WeatherDashboard() {
-  const [searchInput, setSearchInput] = useState('');
-  const [city, setCity] = useState(null);
+// Assets
+import dashboardWallpaper from "../assets/images/dashboard_wallpaper.jpg";
+
+// API services
+import { getComprehensiveWeather } from "../services/weatherApi";
+
+export default function Dashboard() {
+  const [cityQuery, setCityQuery] = useState("");
+  const [currentLocation, setCurrentLocation] = useState(null);
+
+  // Stored raw normalized weather & 5 days (starts as null on initial load, NO hardcoded default city)
+  const [rawWeather, setRawWeather] = useState(null);
+  const [raw5Days, setRaw5Days] = useState([]);
+  const [selectedForecastIndex, setSelectedForecastIndex] = useState(2); // Card 3 active by default
+
+  const [unit, setUnit] = useState("metric"); // 'metric' (°C) | 'imperial' (°F)
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
-  const [tempUnit, setTempUnit] = useState('C');
+  const [error, setError] = useState("");
 
-  // Get weather icon based on condition
-  const getWeatherIcon = (description) => {
-    const desc = description.toLowerCase();
-    if (desc.includes('rain') || desc.includes('drizzle')) return '🌧️';
-    if (desc.includes('thunderstorm')) return '⛈️';
-    if (desc.includes('snow')) return '❄️';
-    if (desc.includes('clear') || desc.includes('sunny')) return '☀️';
-    if (desc.includes('cloud') || desc.includes('overcast')) return '☁️';
-    if (desc.includes('mist') || desc.includes('fog')) return '🌫️';
-    return '⛅';
-  };
+  // Modals & Drawer
+  const [isDrawerOpen, setIsDrawerOpen] = useState(false);
+  const [showMapModal, setShowMapModal] = useState(false);
+  const [toastMessage, setToastMessage] = useState(null);
 
-  // Format date
-  const formatDate = (timestamp) => {
-    const date = new Date(timestamp * 1000);
-    return date.toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric', year: 'numeric' });
-  };
-
-  // Format time
-  const formatTime = (timestamp) => {
-    const date = new Date(timestamp * 1000);
-    return date.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
-  };
-
-  // Format sunrise/sunset
-  const formatSunTime = (timestamp) => {
-    const date = new Date(timestamp * 1000);
-    return date.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true });
-  };
-
-  // Fetch weather data from API
-  const fetchWeatherData = async (cityName) => {
-    setLoading(true);
-    setError('');
+  // Favorites & Search History (stored in localStorage)
+  const [favorites, setFavorites] = useState(() => {
     try {
-      // Get current weather
-      const currentResponse = await fetch(
-        `https://api.openweathermap.org/data/2.5/weather?q=${cityName}&appid=${"8f3c77ea4f58f821b75dfe278c671288"}&units=metric`
-      );
-
-      if (!currentResponse.ok) {
-        throw new Error('City not found');
-      }
-
-      const currentData = await currentResponse.json();
-
-      // Get air quality data using latitude and longitude
-      let airQualityScore = 50;
-      let aqiValue = 2;
-      
-      try {
-        const airQualityResponse = await fetch(
-          `https://api.openweathermap.org/data/2.5/air_pollution?lat=${currentData.coord.lat}&lon=${currentData.coord.lon}&appid=${"8f3c77ea4f58f821b75dfe278c671288"}`
-        );
-        
-        if (airQualityResponse.ok) {
-          const airQualityData = await airQualityResponse.json();
-          
-          if (airQualityData.list && airQualityData.list[0]) {
-            // Convert AQI (1-5) to 0-500 scale for display
-            aqiValue = airQualityData.list[0].main.aqi || 2;
-            const aqiScales = { 1: 25, 2: 50, 3: 75, 4: 100, 5: 150 };
-            airQualityScore = aqiScales[aqiValue] || 50;
-          }
-        }
-      } catch {
-        console.log('Air quality data unavailable, using default');
-      }
-
-      // Get forecast data
-      const forecastResponse = await fetch(
-        `https://api.openweathermap.org/data/2.5/forecast?q=${cityName}&appid=${API_KEY}&units=metric`
-      );
-      const forecastData = await forecastResponse.json();
-
-      // Process forecast to get 5-day data
-      const forecastList = forecastData.list;
-      const dailyForecasts = {};
-      
-      forecastList.forEach((item) => {
-        const date = new Date(item.dt * 1000);
-        const dateKey = date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
-        
-        if (!dailyForecasts[dateKey]) {
-          dailyForecasts[dateKey] = {
-            date: dateKey,
-            day: date.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' }),
-            temps: [],
-            humidity: [],
-            wind: [],
-            condition: item.weather[0].main,
-            description: item.weather[0].description
-          };
-        }
-        
-        dailyForecasts[dateKey].temps.push(item.main.temp);
-        dailyForecasts[dateKey].humidity.push(item.main.humidity);
-        dailyForecasts[dateKey].wind.push(item.wind.speed);
-      });
-
-      const forecast = Object.values(dailyForecasts).slice(0, 5).map((day) => ({
-        day: day.day,
-        temp: Math.round((Math.max(...day.temps) + Math.min(...day.temps)) / 2 * 10) / 10,
-        condition: day.description.charAt(0).toUpperCase() + day.description.slice(1),
-        humidity: Math.round(day.humidity.reduce((a, b) => a + b) / day.humidity.length),
-        wind: Math.round(day.wind.reduce((a, b) => a + b) / day.wind.length * 10) / 10,
-        icon: getWeatherIcon(day.description)
-      }));
-
-      const weatherData = {
-        city: currentData.name,
-        country: currentData.sys.country,
-        date: formatDate(currentData.dt),
-        time: formatTime(currentData.dt),
-        temp: currentData.main.temp,
-        feelsLike: currentData.main.feels_like,
-        condition: currentData.weather[0].main,
-        description: currentData.weather[0].description.charAt(0).toUpperCase() + currentData.weather[0].description.slice(1),
-        humidity: currentData.main.humidity,
-        windSpeed: currentData.wind.speed,
-        pressure: currentData.main.pressure,
-        visibility: Math.round(currentData.visibility / 1000),
-        airQuality: airQualityScore,
-        airQualityStatus: aqiValue === 1 ? 'Good' : aqiValue === 2 ? 'Fair' : aqiValue === 3 ? 'Moderate' : aqiValue === 4 ? 'Poor' : 'Very Poor',
-        sunrise: formatSunTime(currentData.sys.sunrise),
-        sunset: formatSunTime(currentData.sys.sunset),
-        maxTemp: currentData.main.temp_max,
-        minTemp: currentData.main.temp_min,
-        rainChance: currentData.clouds.all,
-        cloudCover: currentData.clouds.all,
-        forecast: forecast
-      };
-
-      setCity(weatherData);
+      const saved = localStorage.getItem("weather_fav_cities");
+      return saved ? JSON.parse(saved) : ["Paris", "Tokyo", "London", "New York", "Patna"];
     } catch {
-      setError('Could not find city. Please try another name.');
-      setCity(null);
+      return ["Paris", "Tokyo", "London", "New York", "Patna"];
+    }
+  });
+
+  const [recentSearches, setRecentSearches] = useState(() => {
+    try {
+      const saved = localStorage.getItem("weather_recent_searches");
+      return saved ? JSON.parse(saved) : ["Paris", "Tokyo", "London"];
+    } catch {
+      return ["Paris", "Tokyo", "London"];
+    }
+  });
+
+  useEffect(() => {
+    try {
+      localStorage.setItem("weather_fav_cities", JSON.stringify(favorites));
+    } catch (e) {
+      console.error(e);
+    }
+  }, [favorites]);
+
+  useEffect(() => {
+    try {
+      localStorage.setItem("weather_recent_searches", JSON.stringify(recentSearches));
+    } catch (e) {
+      console.error(e);
+    }
+  }, [recentSearches]);
+
+  const showToast = (msg) => {
+    setToastMessage(msg);
+    setTimeout(() => setToastMessage(null), 3000);
+  };
+
+  // Convert raw normalized data to active unit dynamically
+  const isImperial = unit === "imperial";
+
+  const dailyForecast = useMemo(() => {
+    if (!raw5Days || raw5Days.length === 0) return [];
+    return raw5Days.map((d) => ({
+      ...d,
+      temp: isImperial ? d.tempF : d.tempC,
+      feelsLike: isImperial ? d.feelsLikeF : d.feelsLikeC,
+      maxTemp: isImperial ? d.maxTempF : d.maxTempC,
+      minTemp: isImperial ? d.minTempF : d.minTempC,
+      windSpeed: isImperial ? d.windSpeedMph : d.windSpeedKmh,
+      hourly: (d.hourly || []).map((h) => ({
+        ...h,
+        temp: isImperial ? h.tempF : h.tempC,
+        windSpeed: isImperial ? h.windSpeedMph : h.windSpeedKmh,
+      })),
+    }));
+  }, [raw5Days, isImperial]);
+
+  const weather = useMemo(() => {
+    if (!rawWeather) return null;
+
+    if (selectedForecastIndex === 0 || !dailyForecast[selectedForecastIndex]) {
+      return {
+        ...rawWeather,
+        temp: isImperial ? rawWeather.tempF : rawWeather.tempC,
+        feelsLike: isImperial ? rawWeather.feelsLikeF : rawWeather.feelsLikeC,
+        maxTemp: isImperial ? rawWeather.maxTempF : rawWeather.maxTempC,
+        minTemp: isImperial ? rawWeather.minTempF : rawWeather.minTempC,
+        windSpeed: isImperial ? rawWeather.windSpeedMph : rawWeather.windSpeedKmh,
+      };
+    }
+
+    const selectedDay = dailyForecast[selectedForecastIndex];
+    return {
+      ...rawWeather,
+      temp: selectedDay.temp,
+      feelsLike: selectedDay.feelsLike,
+      maxTemp: selectedDay.maxTemp,
+      minTemp: selectedDay.minTemp,
+      windSpeed: selectedDay.windSpeed,
+      condition: selectedDay.condition,
+      description: selectedDay.description || selectedDay.condition,
+      humidity: selectedDay.humidity,
+      rainChance: selectedDay.rainChance,
+      cloudCover: selectedDay.cloudCover,
+      summaryText: selectedDay.summaryText || `Forecasted ${selectedDay.condition} with temperatures around ${selectedDay.temp}°.`,
+    };
+  }, [rawWeather, dailyForecast, selectedForecastIndex, isImperial]);
+
+  // Fetch weather dynamically for any searched city
+  const fetchWeather = useCallback(async (cityNameOrQuery) => {
+    if (!cityNameOrQuery) return;
+
+    setLoading(true);
+    setError("");
+
+    try {
+      const result = await getComprehensiveWeather(cityNameOrQuery);
+      setCurrentLocation(result.locationInfo);
+      setRawWeather(result.rawWeather);
+      setRaw5Days(result.raw5Days);
+      setSelectedForecastIndex(2); // Match screenshot active card (Card 3)
+
+      setRecentSearches((prev) => {
+        const filtered = prev.filter((c) => c.toLowerCase() !== result.locationInfo.cityName.toLowerCase());
+        return [result.locationInfo.cityName, ...filtered].slice(0, 8);
+      });
+    } catch (err) {
+      console.error(err);
+      setError("City not found. Please check the city name and try again.");
+      showToast(`City not found. Please try again.`);
     } finally {
       setLoading(false);
     }
+  }, []);
+
+  // GPS Geolocation handler
+  const fetchWeatherByLocation = () => {
+    if (!navigator.geolocation) {
+      showToast("Geolocation is not supported by your browser");
+      return;
+    }
+
+    showToast("Detecting your location...");
+    setLoading(true);
+
+    navigator.geolocation.getCurrentPosition(
+      async (pos) => {
+        const { latitude, longitude } = pos.coords;
+        try {
+          const result = await getComprehensiveWeather(`${latitude},${longitude}`);
+          setCurrentLocation(result.locationInfo);
+          setRawWeather(result.rawWeather);
+          setRaw5Days(result.raw5Days);
+          setSelectedForecastIndex(2);
+          showToast(`Location loaded: ${result.locationInfo.cityName}`);
+        } catch (err) {
+          console.error(err);
+          showToast("Failed to fetch location weather data");
+        } finally {
+          setLoading(false);
+        }
+      },
+      () => {
+        showToast("Location access denied or unavailable");
+        setLoading(false);
+      }
+    );
   };
 
-  const handleSearch = (e) => {
-    e.preventDefault();
-    if (searchInput.trim()) {
-      fetchWeatherData(searchInput.trim());
-      setSearchInput('');
+  const handleSearchSubmit = (searchVal) => {
+    if (searchVal?.trim()) {
+      fetchWeather(searchVal.trim());
+      setCityQuery("");
     }
   };
 
-  const handleQuickCity = (cityName) => {
-    fetchWeatherData(cityName);
+  const handleGoHome = () => {
+    setRawWeather(null);
+    setRaw5Days([]);
+    setCurrentLocation(null);
+    setCityQuery("");
+    setError("");
   };
 
+  const isCurrentFavorite = Boolean(
+    currentLocation?.cityName &&
+    favorites.some((f) => f.toLowerCase() === currentLocation.cityName.toLowerCase())
+  );
+
+  const toggleFavorite = () => {
+    if (!currentLocation?.cityName) return;
+
+    const city = currentLocation.cityName;
+    if (isCurrentFavorite) {
+      setFavorites((prev) =>
+        prev.filter((f) => f.toLowerCase() !== city.toLowerCase())
+      );
+      showToast(`Removed ${city} from favorites`);
+    } else {
+      setFavorites((prev) => [city, ...prev]);
+      showToast(`Added ${city} to favorites ❤️`);
+    }
+  };
+
+  const activeDayForecast = dailyForecast[selectedForecastIndex] || dailyForecast[0];
+  const activeHourlyData = activeDayForecast?.hourly || [];
+
   return (
-    <div className="dashboard min-h-screen text-white">
-      {/* Header */}
-      <div className="flex items-center justify-between mb-8">
-        <div className="flex items-center gap-3">
-          <div className="text-5xl">🌤️</div>
-          <h1 className="text-4xl md:text-5xl font-bold">Weather <span className="gradient-text">Dashboard</span></h1>
-        </div>
-        <div className="flex items-center gap-3 backdrop-glass px-4 py-2 rounded-xl">
-          <button 
-            onClick={() => setTempUnit('C')}
-            className={`px-3 py-1 rounded transition-all ${tempUnit === 'C' ? 'bg-blue-500 text-white' : 'text-gray-300'}`}
-          >
-            °C
-          </button>
-          <button 
-            onClick={() => setTempUnit('F')}
-            className={`px-3 py-1 rounded transition-all ${tempUnit === 'F' ? 'bg-blue-500 text-white' : 'text-gray-300'}`}
-          >
-            °F
-          </button>
-        </div>
-      </div>
+    <div className="relative min-h-screen w-full bg-[#060a18] text-white">
+      {/* 1. Direct Background Wallpaper Image (Fixed Full-Screen) */}
+      <img
+        src={dashboardWallpaper}
+        alt="Atmospheric Weather Wallpaper"
+        className="fixed inset-0 w-full h-full object-cover object-center pointer-events-none z-0"
+      />
 
-      {/* Search Bar */}
-      <form onSubmit={handleSearch} className="mb-8">
-        <div className="relative">
-          <input
-            type="text"
-            placeholder="Which city do you want to search"
-            value={searchInput}
-            onChange={(e) => setSearchInput(e.target.value)}
-            className="w-full glass px-6 py-3 text-white placeholder-gray-400 focus:outline-none focus:border-blue-400 transition-all text-lg"
+      {/* 2. Soft Atmospheric Lighting Gradient Overlay */}
+      <div className="fixed inset-0 pointer-events-none z-[1] bg-gradient-to-b from-[#060a18]/45 via-[#080e26]/15 to-[#0a0618]/50" />
+
+      {/* Toast Notification */}
+      <AnimatePresence>
+        {toastMessage && (
+          <motion.div
+            initial={{ opacity: 0, y: -20, scale: 0.95 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: -20, scale: 0.95 }}
+            className="fixed top-5 left-1/2 transform -translate-x-1/2 z-50 px-5 py-2 rounded-full bg-blue-600/90 text-white text-xs md:text-sm font-medium shadow-2xl backdrop-blur-xl border border-blue-400/30 flex items-center gap-2"
+          >
+            <Sparkles size={15} className="text-yellow-300" />
+            {toastMessage}
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* 3. Foreground Dashboard Content */}
+      <div className="relative z-10 dashboard-wrapper">
+        <div className="w-full flex-1 flex flex-col">
+          {/* Navigation Header with Autocomplete */}
+          <HeaderNav
+            cityQuery={cityQuery}
+            setCityQuery={setCityQuery}
+            onSearch={handleSearchSubmit}
+            unit={unit}
+            setUnit={setUnit}
+            onRefresh={() => {
+              if (currentLocation) {
+                fetchWeather(currentLocation);
+                showToast(`${currentLocation.cityName} weather refreshed`);
+              }
+            }}
+            onGeoLocation={fetchWeatherByLocation}
+            onOpenMenu={() => setIsDrawerOpen(true)}
+            onGoHome={handleGoHome}
+            isLoading={loading}
+            hasCity={Boolean(weather)}
           />
-          <button
-            type="button"
-            className="absolute right-6 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-white text-2xl"
-          >
-            👁️
-          </button>
-        </div>
-      </form>
 
-      {/* Empty State or Dashboard */}
-      {!city ? (
-        <div className="flex flex-col items-center justify-center py-32">
-          {loading ? (
-            <>
-              <div className="text-7xl mb-6 animate-spin weather-float">🌍</div>
-              <h2 className="text-2xl font-bold">Loading weather data...</h2>
-            </>
+          {/* Error message banner if any */}
+          {error && (
+            <motion.div
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="mb-6 p-3.5 rounded-2xl bg-rose-500/20 border border-rose-500/30 text-rose-200 text-xs md:text-sm flex items-center justify-between"
+            >
+              <span>{error}</span>
+              <button
+                onClick={() => setError("")}
+                className="text-rose-300 hover:text-white p-1"
+              >
+                <X size={16} />
+              </button>
+            </motion.div>
+          )}
+
+          {/* VIEW 1: Initial Empty State (Search First Experience) */}
+          {!weather ? (
+            <WelcomeScreen
+              onSelectCity={(city) => fetchWeather(city)}
+              isLoading={loading}
+            />
           ) : (
+            /* VIEW 2: Full Dynamic Weather Dashboard */
             <>
-              <div className="text-8xl mb-6 weather-float">🌍</div>
-              <h2 className="text-4xl font-bold mb-4">Welcome to Weather Dashboard</h2>
-              <p className="text-gray-400 text-lg mb-12">Search for a city to get started</p>
-              
-              {error && (
-                <div className="glass px-6 py-4 mb-8 text-red-200 border-red-500/50 max-w-md">
-                  {error}
+              {/* Top Row: Hero Card & 3 Stacked Sidebar Cards with Explicit Bottom Margin */}
+              <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch mb-8 md:mb-10">
+                {/* Left Column: Hero Weather Card (takes 8 cols on desktop) */}
+                <div className="lg:col-span-8 flex flex-col">
+                  <HeroWeatherCard weather={weather} unit={unit} />
+                </div>
+
+                {/* Right Column: 3 Stacked Cards (Air Quality, Sunrise & Sunset, Highlights) */}
+                <div className="lg:col-span-4 flex flex-col gap-4 justify-between">
+                  {/* 1. Air Quality Index Card */}
+                  <AirQualityCard
+                    airQuality={weather.airQuality}
+                    airQualityStatus={weather.airQualityStatus}
+                  />
+
+                  {/* 2. Sunrise & Sunset Card */}
+                  <SunriseSunsetCard
+                    sunrise={weather.sunrise}
+                    sunset={weather.sunset}
+                    sunriseTimestamp={weather.sunriseTimestamp}
+                    sunsetTimestamp={weather.sunsetTimestamp}
+                    currentTime={weather.dt}
+                  />
+
+                  {/* 3. Today's Highlights Card */}
+                  <TodayHighlightsCard
+                    maxTemp={weather.maxTemp}
+                    minTemp={weather.minTemp}
+                    rainChance={weather.rainChance}
+                    cloudCover={weather.cloudCover}
+                    unit={unit}
+                  />
+                </div>
+              </div>
+
+              {/* 5-Day Forecast Section with Explicit Bottom Margin */}
+              <div className="mb-8 md:mb-10">
+                <ForecastSection
+                  forecastList={dailyForecast}
+                  selectedIndex={selectedForecastIndex}
+                  onSelectDay={(idx) => setSelectedForecastIndex(idx)}
+                  unit={unit}
+                />
+              </div>
+
+              {/* 24-Hour Hourly Forecast Chart */}
+              {activeHourlyData.length > 0 && (
+                <div className="mb-8 md:mb-10">
+                  <HourlyChart
+                    hourlyData={activeHourlyData}
+                    unit={unit}
+                    selectedDayName={activeDayForecast?.dayName || "Today"}
+                  />
                 </div>
               )}
 
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 w-full max-w-2xl">
-                {['London', 'Paris', 'Tokyo'].map((cityName) => (
-                  <button
-                    key={cityName}
-                    onClick={() => handleQuickCity(cityName)}
-                    className="glass px-6 py-3 font-semibold transition-all transform hover:scale-105 hover:shadow-lg"
-                  >
-                    {cityName}
-                  </button>
-                ))}
+              {/* Bottom Controls: Centered Tip Pill */}
+              <div className="mt-2 mb-4 flex items-center justify-center">
+                <div className="px-5 py-2 rounded-full bg-[#0c1432]/90 border border-white/10 text-xs text-gray-300 flex items-center gap-2 shadow-[0_4px_20px_rgba(0,0,0,0.4)] backdrop-blur-xl">
+                  <Zap size={14} className="text-[#a855f7] fill-[#a855f7]" />
+                  <span className="font-medium">
+                    <strong className="text-white font-semibold">Tip:</strong> Weather can change quickly, stay prepared!
+                  </span>
+                </div>
               </div>
             </>
           )}
         </div>
-      ) : (
-        <>
-          {/* Main Weather Card */}
-          <div className="glass p-8 mb-10">
-            <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
-              {/* Left Section - Temperature & Condition */}
-              <div className="lg:col-span-1">
-                <div className="mb-1 text-gray-300 text-lg flex items-center gap-1">
-                  <span>📍</span>
-                  <span>{city.city}, {city.country}</span>
-                </div>
-                <div className="text-sm text-gray-400 mb-8">{city.date}</div>
-                
-                <div className="mb-8">
-                  <div className="text-7xl font-bold mb-2">
-                    {Math.round(city.temp)}°<span className="text-4xl">{tempUnit}</span>
-                  </div>
-                  <div className="text-gray-400">Feels like {Math.round(city.feelsLike)}°</div>
-                </div>
 
-                <div className="mb-8">
-                  <h3 className="text-2xl font-bold mb-2">{city.condition}</h3>
-                  <p className="text-gray-400 text-sm">{city.description}</p>
-                </div>
+        {/* Floating Action Button (Heart / Favorite City) at Bottom-Right */}
+        {weather && (
+          <motion.button
+            whileHover={{ scale: 1.1 }}
+            whileTap={{ scale: 0.9 }}
+            onClick={toggleFavorite}
+            title={isCurrentFavorite ? "Remove from favorites" : "Add to favorites"}
+            className={`fixed bottom-6 right-6 z-40 w-11 h-11 rounded-full flex items-center justify-center shadow-[0_0_25px_rgba(217,70,239,0.6)] transition-all cursor-pointer ${
+              isCurrentFavorite
+                ? "bg-gradient-to-tr from-[#9333ea] to-[#ec4899] text-white ring-2 ring-pink-400/50"
+                : "bg-gradient-to-tr from-[#6b21a8] to-[#db2777] border border-pink-400/30 text-white hover:brightness-110"
+            }`}
+          >
+            <Heart
+              size={18}
+              className="fill-white text-white"
+            />
+          </motion.button>
+        )}
 
-                {/* Weather Metrics Grid */}
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="backdrop-glass p-4 rounded-xl">
-                    <div className="flex items-center gap-2 mb-2">
-                      <Droplets size={18} className="text-blue-400" />
-                      <span className="text-gray-400 text-xs">Humidity</span>
-                    </div>
-                    <div className="text-2xl font-bold">{city.humidity}%</div>
-                  </div>
-                  <div className="backdrop-glass p-4 rounded-xl">
-                    <div className="flex items-center gap-2 mb-2">
-                      <Wind size={18} className="text-green-400" />
-                      <span className="text-gray-400 text-xs">Wind Speed</span>
-                    </div>
-                    <div className="text-2xl font-bold">{city.windSpeed} m/s</div>
-                  </div>
-                  <div className="backdrop-glass p-4 rounded-xl">
-                    <div className="flex items-center gap-2 mb-2">
-                      <span className="text-orange-400 text-lg">⊙</span>
-                      <span className="text-gray-400 text-xs">Pressure</span>
-                    </div>
-                    <div className="text-2xl font-bold">{city.pressure}</div>
-                  </div>
-                  <div className="backdrop-glass p-4 rounded-xl">
-                    <div className="flex items-center gap-2 mb-2">
-                      <Eye size={18} className="text-cyan-400" />
-                      <span className="text-gray-400 text-xs">Visibility</span>
-                    </div>
-                    <div className="text-2xl font-bold">{city.visibility} km</div>
-                  </div>
-                </div>
-              </div>
+        {/* Side Drawer Menu */}
+        <DrawerMenu
+          isOpen={isDrawerOpen}
+          onClose={() => setIsDrawerOpen(false)}
+          favorites={favorites}
+          recentSearches={recentSearches}
+          onSelectCity={(city) => fetchWeather(city)}
+          onOpenHourlyChart={() => {
+            window.scrollTo({ top: document.body.scrollHeight, behavior: "smooth" });
+          }}
+          onOpenMap={() => setShowMapModal(true)}
+        />
 
-              {/* Center Section - Large Weather Icon */}
-              <div className="lg:col-span-1 flex items-center justify-center py-8">
-                <div className="relative w-full h-56 flex items-center justify-center">
-                  {city.condition.includes('Rainy') || city.condition.includes('Rain') ? (
-                    <div className="text-8xl weather-float">🌧️</div>
-                  ) : city.condition.includes('Sunny') || city.condition.includes('Clear') ? (
-                    <div className="text-8xl weather-float">☀️</div>
-                  ) : city.condition.includes('Cloud') ? (
-                    <div className="text-8xl weather-float">☁️</div>
-                  ) : (
-                    <div className="text-8xl weather-float">⛅</div>
-                  )}
-                </div>
-              </div>
-
-              {/* Right Section - Air Quality & Highlights */}
-              <div className="lg:col-span-2 space-y-6">
-                {/* Air Quality */}
-                <div>
-                  <h3 className="text-lg font-semibold mb-4">Air Quality Index</h3>
-                  <div className="backdrop-glass p-6 rounded-2xl flex items-center gap-6">
-                    <div className="relative w-28 h-28 shrink-0">
-                      <svg className="w-full h-full transform -rotate-90" viewBox="0 0 100 100">
-                        <circle cx="50" cy="50" r="45" fill="none" stroke="#1e293b" strokeWidth="8" />
-                        <circle cx="50" cy="50" r="45" fill="none" stroke="#10b981" strokeWidth="8" 
-                          strokeDasharray={`${Math.min((city.airQuality / 150) * 282, 282)} 282`}
-                          strokeLinecap="round" />
-                      </svg>
-                      <div className="absolute inset-0 flex items-center justify-center">
-                        <span className="text-3xl font-bold">{city.airQuality}</span>
-                      </div>
-                    </div>
-                    <div>
-                      <div className="text-green-400 font-semibold text-lg mb-1">{city.airQualityStatus}</div>
-                      <p className="text-sm text-gray-400">Air quality is satisfactory for most people.</p>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Sunrise & Sunset */}
-                <div>
-                  <h3 className="text-lg font-semibold mb-4">Sunrise & Sunset</h3>
-                  <div className="backdrop-glass p-6 rounded-2xl">
-                    <div className="flex items-end justify-between">
-                      <div className="flex flex-col items-center gap-2">
-                        <Sunrise size={32} className="text-yellow-400" />
-                        <span className="text-sm text-gray-400">{city.sunrise}</span>
-                      </div>
-                      <div className="flex-1 mx-4 h-1 bg-linear-to-r from-yellow-400 via-yellow-300 to-orange-400 rounded-full"></div>
-                      <div className="flex flex-col items-center gap-2">
-                        <Sunset size={32} className="text-orange-400" />
-                        <span className="text-sm text-gray-400">{city.sunset}</span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Today's Highlights */}
-                <div>
-                  <h3 className="text-lg font-semibold mb-4">Today's Highlights</h3>
-                  <div className="grid grid-cols-2 gap-4">
-                    <div className="backdrop-glass p-4 rounded-xl">
-                      <div className="text-gray-400 text-xs mb-2">Max Temp</div>
-                      <div className="text-2xl font-bold">{Math.round(city.maxTemp)}°{tempUnit}</div>
-                    </div>
-                    <div className="backdrop-glass p-4 rounded-xl">
-                      <div className="text-gray-400 text-xs mb-2">Min Temp</div>
-                      <div className="text-2xl font-bold">{Math.round(city.minTemp)}°{tempUnit}</div>
-                    </div>
-                    <div className="backdrop-glass p-4 rounded-xl">
-                      <div className="text-gray-400 text-xs mb-2">Chance of Rain</div>
-                      <div className="text-2xl font-bold">{city.rainChance}%</div>
-                    </div>
-                    <div className="backdrop-glass p-4 rounded-xl">
-                      <div className="text-gray-400 text-xs mb-2">Cloud Cover</div>
-                      <div className="text-2xl font-bold">{city.cloudCover}%</div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* 5-Day Forecast */}
-          <div className="mb-10">
-            <h2 className="text-2xl font-bold mb-6">5-Day Forecast ✨</h2>
-            <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
-              {city.forecast.map((day, index) => (
-                <div
-                  key={index}
-                  className={`glass p-6 rounded-2xl transition-all card ${
-                    index === 1 ? 'ring-2 ring-blue-400' : ''
-                  }`}
+        {/* Weather Map Modal */}
+        <AnimatePresence>
+          {showMapModal && weather && (
+            <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-md">
+              <motion.div
+                initial={{ opacity: 0, scale: 0.95 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0, scale: 0.95 }}
+                className="relative w-full max-w-5xl max-h-[90vh] overflow-y-auto rounded-[32px] bg-[#0c1432] border border-white/10 p-6 shadow-2xl"
+              >
+                <button
+                  onClick={() => setShowMapModal(false)}
+                  className="absolute top-6 right-6 z-[1001] w-9 h-9 rounded-full bg-black/60 border border-white/20 flex items-center justify-center text-gray-200 hover:text-white"
                 >
-                  <h3 className="font-semibold text-base mb-4">{day.day}</h3>
-                  <div className="text-6xl mb-4 text-center weather-float">{day.icon}</div>
-                  <div className="text-3xl font-bold mb-2">{Math.round(day.temp)}°{tempUnit}</div>
-                  <div className="text-gray-400 text-sm mb-4">{day.condition}</div>
-                  <div className="space-y-3 text-sm">
-                    <div className="flex justify-between items-center">
-                      <span className="text-gray-400">💧 Humidity</span>
-                      <span className="font-semibold">{day.humidity}%</span>
-                    </div>
-                    <div className="flex justify-between items-center">
-                      <span className="text-gray-400">💨 Wind</span>
-                      <span className="font-semibold">{day.wind} m/s</span>
-                    </div>
-                  </div>
-                </div>
-              ))}
+                  <X size={18} />
+                </button>
+                <WeatherMap weather={weather} />
+              </motion.div>
             </div>
-          </div>
-
-          {/* Footer Tip */}
-          <div className="glass p-5 rounded-2xl text-center mb-8">
-            <p className="text-gray-300">⚡ Tip: Weather can change quickly, stay prepared!</p>
-          </div>
-
-          {/* Back Button */}
-          <div className="flex justify-center">
-            <button
-              onClick={() => setCity(null)}
-              className="glass px-8 py-3 rounded-xl font-semibold transition-all hover:shadow-lg hover:ring-2 ring-blue-400"
-            >
-              Search Another City
-            </button>
-          </div>
-        </>
-      )}
+          )}
+        </AnimatePresence>
+      </div>
     </div>
   );
 }

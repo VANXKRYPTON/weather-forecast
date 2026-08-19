@@ -1,138 +1,173 @@
-
+import React, { useState } from "react";
 import { motion } from "framer-motion";
 import {
   ResponsiveContainer,
   AreaChart,
   Area,
-  CartesianGrid,
   XAxis,
   YAxis,
   Tooltip,
 } from "recharts";
-import {
-  Clock3,
-  Sparkles,
-  Thermometer,
-  Wind,
-  Droplets,
-} from "lucide-react";
+import { Clock, Droplets, Wind, Thermometer, Sparkles } from "lucide-react";
+import Weather3DIcon from "./Weather3DIcon";
 
-export default function HourlyChart({ forecast }) {
-  if (!forecast) return null;
+export default function HourlyChart({
+  forecastList = [],
+  hourlyData = [],
+  unit = "metric",
+  selectedDayName = "Today",
+}) {
+  const [activeTab, setActiveTab] = useState("temp"); // 'temp' | 'rain' | 'wind'
+  const unitSymbol = unit === "imperial" ? "°F" : "°C";
+  const speedSymbol = unit === "imperial" ? "mph" : "km/h";
 
-  const data = forecast.list.slice(0, 8).map((item) => ({
-    time: new Date(item.dt * 1000).toLocaleTimeString([], { hour: "numeric" }),
-    temp: Math.round(item.main.temp),
-    feels: Math.round(item.main.feels_like),
-    humidity: item.main.humidity,
-    wind: item.wind.speed,
-    icon: item.weather[0].icon,
-    desc: item.weather[0].main,
+  if (!hourlyData || hourlyData.length === 0) return null;
+
+  // Chart data formatting
+  const chartData = hourlyData.map((item) => ({
+    time: item.time,
+    temp: Math.round(item.temp),
+    rain: item.rainChance ?? item.humidity ?? 20,
+    wind: Math.round(item.windSpeed),
+    condition: item.condition,
+    description: item.description,
   }));
 
-  return (
-    <motion.section
-      initial={{ opacity: 0, y: 25 }}
-      animate={{ opacity: 1, y: 0 }}
-      className="glass shadow-premium rounded-[34px] p-7 relative overflow-hidden"
-    >
-      <div className="absolute -top-24 -right-24 w-64 h-64 bg-cyan-500/20 rounded-full blur-[120px]" />
-      <div className="absolute -bottom-24 -left-24 w-64 h-64 bg-indigo-500/20 rounded-full blur-[120px]" />
+  const dataKey = activeTab === "temp" ? "temp" : activeTab === "rain" ? "rain" : "wind";
+  const strokeColor =
+    activeTab === "temp" ? "#f59e0b" : activeTab === "rain" ? "#38bdf8" : "#10b981";
+  const gradientId = `grad_${activeTab}`;
 
-      <div className="relative z-10 flex justify-between items-center mb-8">
+  return (
+    <div className="mt-6 glass-panel-dark p-5 md:p-6">
+      {/* Header & Tabs */}
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6">
         <div>
-          <h2 className="text-3xl font-bold">Hourly Forecast</h2>
-          <div className="flex gap-2 mt-2 text-cyan-300 items-center">
-            <Sparkles size={16}/>
-            <span className="text-sm">Next 24 Hours</span>
+          <div className="flex items-center gap-2">
+            <Clock size={18} className="text-amber-400" />
+            <h3 className="text-lg md:text-xl font-bold text-white tracking-tight">
+              Hourly Forecast &mdash; <span className="text-amber-400">{selectedDayName}</span>
+            </h3>
           </div>
+          <p className="text-xs text-gray-400 mt-1">
+            24-hour weather trends, precipitation, and wind speeds
+          </p>
         </div>
 
-        <div className="glass rounded-xl px-4 py-2 flex gap-2 items-center">
-          <Clock3 size={18}/>
-          <span>24H</span>
+        {/* Mode Selector Tabs (Temperature / Precipitation / Wind) */}
+        <div className="p-1 rounded-2xl glass-card-sm flex items-center gap-1">
+          <button
+            onClick={() => setActiveTab("temp")}
+            className={`px-3.5 py-1.5 rounded-xl text-xs font-semibold transition-all flex items-center gap-1.5 ${
+              activeTab === "temp"
+                ? "bg-amber-500/25 border border-amber-400/40 text-amber-300 shadow-[0_0_15px_rgba(245,158,11,0.3)]"
+                : "text-gray-400 hover:text-gray-200"
+            }`}
+          >
+            <Thermometer size={14} /> Temperature
+          </button>
+          <button
+            onClick={() => setActiveTab("rain")}
+            className={`px-3.5 py-1.5 rounded-xl text-xs font-semibold transition-all flex items-center gap-1.5 ${
+              activeTab === "rain"
+                ? "bg-sky-500/25 border border-sky-400/40 text-sky-300 shadow-[0_0_15px_rgba(56,189,248,0.3)]"
+                : "text-gray-400 hover:text-gray-200"
+            }`}
+          >
+            <Droplets size={14} /> Precipitation
+          </button>
+          <button
+            onClick={() => setActiveTab("wind")}
+            className={`px-3.5 py-1.5 rounded-xl text-xs font-semibold transition-all flex items-center gap-1.5 ${
+              activeTab === "wind"
+                ? "bg-emerald-500/25 border border-emerald-400/40 text-emerald-300 shadow-[0_0_15px_rgba(16,185,129,0.3)]"
+                : "text-gray-400 hover:text-gray-200"
+            }`}
+          >
+            <Wind size={14} /> Wind
+          </button>
         </div>
       </div>
 
-      <div className="relative z-10 h-[340px]">
+      {/* Smooth Area Chart */}
+      <div className="relative h-[220px] w-full">
         <ResponsiveContainer width="100%" height="100%">
-          <AreaChart data={data}>
+          <AreaChart data={chartData} margin={{ top: 20, right: 15, left: 15, bottom: 5 }}>
             <defs>
-              <linearGradient id="g" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%" stopColor="#38bdf8" stopOpacity={0.9}/>
-                <stop offset="100%" stopColor="#38bdf8" stopOpacity={0}/>
+              <linearGradient id="grad_temp" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stopColor="#f59e0b" stopOpacity={0.45} />
+                <stop offset="100%" stopColor="#f59e0b" stopOpacity={0.0} />
+              </linearGradient>
+              <linearGradient id="grad_rain" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stopColor="#38bdf8" stopOpacity={0.45} />
+                <stop offset="100%" stopColor="#38bdf8" stopOpacity={0.0} />
+              </linearGradient>
+              <linearGradient id="grad_wind" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stopColor="#10b981" stopOpacity={0.45} />
+                <stop offset="100%" stopColor="#10b981" stopOpacity={0.0} />
               </linearGradient>
             </defs>
 
-            <CartesianGrid strokeDasharray="3 3" opacity={0.15}/>
-            <XAxis dataKey="time" tick={{fill:"#cbd5e1"}} axisLine={false} tickLine={false}/>
-            <YAxis hide/>
+            <XAxis
+              dataKey="time"
+              axisLine={false}
+              tickLine={false}
+              tick={{ fill: "#94a3b8", fontSize: 11 }}
+            />
+            <YAxis hide domain={["auto", "auto"]} />
+
             <Tooltip
-              contentStyle={{
-                background:"#111827",
-                borderRadius:16,
-                border:"1px solid rgba(255,255,255,.1)"
+              content={({ active, payload }) => {
+                if (active && payload && payload.length) {
+                  const p = payload[0].payload;
+                  return (
+                    <div className="rounded-2xl bg-[#090f28]/95 border border-white/15 p-3 shadow-2xl backdrop-blur-xl text-center">
+                      <p className="text-xs text-gray-400 font-medium">{p.time}</p>
+                      <p className="text-base font-bold text-white my-0.5">
+                        {activeTab === "temp"
+                          ? `${p.temp}${unitSymbol}`
+                          : activeTab === "rain"
+                          ? `${p.rain}% rain`
+                          : `${p.wind} ${speedSymbol}`}
+                      </p>
+                      <p className="text-[11px] text-cyan-300 capitalize">{p.condition}</p>
+                    </div>
+                  );
+                }
+                return null;
               }}
             />
 
             <Area
               type="monotone"
-              dataKey="temp"
-              stroke="#38bdf8"
-              strokeWidth={4}
-              fill="url(#g)"
+              dataKey={dataKey}
+              stroke={strokeColor}
+              strokeWidth={3}
+              fill={`url(#${gradientId})`}
+              dot={{ fill: strokeColor, r: 4, strokeWidth: 2, stroke: "#0c1432" }}
+              activeDot={{ r: 6, fill: "#ffffff", stroke: strokeColor, strokeWidth: 2 }}
             />
           </AreaChart>
         </ResponsiveContainer>
       </div>
 
-      <div className="relative z-10 grid lg:grid-cols-4 md:grid-cols-2 grid-cols-1 gap-5 mt-8">
-        {data.map((hour,index)=>(
-          <HourCard key={index} hour={hour}/>
+      {/* Hourly Quick Strip */}
+      <div className="mt-4 pt-4 border-t border-white/10 flex items-center justify-between gap-2 overflow-x-auto no-scrollbar pb-1">
+        {chartData.map((hour, i) => (
+          <div
+            key={i}
+            className="flex-1 min-w-[65px] flex flex-col items-center justify-center p-2 rounded-xl bg-white/5 hover:bg-white/10 border border-white/5 transition-all text-center"
+          >
+            <span className="text-[11px] text-gray-400 font-medium">{hour.time}</span>
+            <div className="my-1 w-7 h-7 flex items-center justify-center">
+              <Weather3DIcon condition={hour.condition} size="sm" className="w-6 h-6" />
+            </div>
+            <span className="text-xs font-bold text-white">
+              {hour.temp}{unitSymbol}
+            </span>
+          </div>
         ))}
       </div>
-    </motion.section>
-  );
-}
-
-function HourCard({hour}){
-  return(
-    <motion.div
-      whileHover={{y:-6,scale:1.03}}
-      className="glass rounded-3xl border border-white/10 p-5"
-    >
-      <div className="flex justify-between items-center">
-        <div>
-          <p className="text-slate-300">{hour.time}</p>
-          <h3 className="text-4xl font-black mt-2">{hour.temp}°</h3>
-        </div>
-
-        <img
-          src={`https://openweathermap.org/img/wn/${hour.icon}@2x.png`}
-          className="w-16"
-          alt={hour.desc}
-        />
-      </div>
-
-      <div className="grid grid-cols-3 gap-3 mt-6">
-        <Metric icon={<Thermometer size={16}/>} value={`${hour.feels}°`} label="Feels"/>
-        <Metric icon={<Droplets size={16}/>} value={`${hour.humidity}%`} label="Humidity"/>
-        <Metric icon={<Wind size={16}/>} value={`${hour.wind}m/s`} label="Wind"/>
-      </div>
-
-      <p className="capitalize mt-5 text-center text-slate-300">
-        {hour.desc}
-      </p>
-    </motion.div>
-  );
-}
-
-function Metric({icon,value,label}){
-  return(
-    <div className="rounded-xl bg-white/5 border border-white/10 p-3 text-center">
-      <div className="flex justify-center text-cyan-300">{icon}</div>
-      <p className="font-semibold mt-2">{value}</p>
-      <p className="text-xs text-slate-400 mt-1">{label}</p>
     </div>
   );
 }
