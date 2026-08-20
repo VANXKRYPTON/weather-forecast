@@ -4,7 +4,7 @@ import Weather3DIcon from "./Weather3DIcon";
 
 export default function ForecastSection({
   forecastList = [],
-  selectedIndex = 2,
+  selectedIndex = 0,
   onSelectDay,
   unit = "metric",
 }) {

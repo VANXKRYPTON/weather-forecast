@@ -25,7 +25,7 @@ export default function Dashboard() {
   // Stored raw normalized weather & 5 days (starts as null on initial load, NO hardcoded default city)
   const [rawWeather, setRawWeather] = useState(null);
   const [raw5Days, setRaw5Days] = useState([]);
-  const [selectedForecastIndex, setSelectedForecastIndex] = useState(2); // Card 3 active by default
+  const [selectedForecastIndex, setSelectedForecastIndex] = useState(0); // Card 1 (Today) active by default
 
   const [unit, setUnit] = useState("metric"); // 'metric' (°C) | 'imperial' (°F)
   const [loading, setLoading] = useState(false);
@@ -139,7 +139,7 @@ export default function Dashboard() {
       setCurrentLocation(result.locationInfo);
       setRawWeather(result.rawWeather);
       setRaw5Days(result.raw5Days);
-      setSelectedForecastIndex(2); // Match screenshot active card (Card 3)
+      setSelectedForecastIndex(0); // Show Current Day (Today) by default
 
       setRecentSearches((prev) => {
         const filtered = prev.filter((c) => c.toLowerCase() !== result.locationInfo.cityName.toLowerCase());
@@ -172,7 +172,7 @@ export default function Dashboard() {
           setCurrentLocation(result.locationInfo);
           setRawWeather(result.rawWeather);
           setRaw5Days(result.raw5Days);
-          setSelectedForecastIndex(2);
+          setSelectedForecastIndex(0); // Show Current Day (Today) by default
           showToast(`Location loaded: ${result.locationInfo.cityName}`);
         } catch (err) {
           console.error(err);
