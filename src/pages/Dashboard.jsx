@@ -13,9 +13,7 @@ import ForecastSection from "../components/ForecastSection";
 import HourlyChart from "../components/HourlyChart";
 import DrawerMenu from "../components/DrawerMenu";
 import WeatherMap from "../components/WeatherMap";
-
-// Assets
-import dashboardWallpaper from "../assets/images/dashboard_wallpaper.jpg";
+import LiveWeatherBackground from "../components/LiveWeatherBackground";
 
 // API services
 import { getComprehensiveWeather } from "../services/weatherApi";
@@ -230,15 +228,8 @@ export default function Dashboard() {
 
   return (
     <div className="relative min-h-screen w-full bg-[#060a18] text-white">
-      {/* 1. Direct Background Wallpaper Image (Fixed Full-Screen) */}
-      <img
-        src={dashboardWallpaper}
-        alt="Atmospheric Weather Wallpaper"
-        className="fixed inset-0 w-full h-full object-cover object-center pointer-events-none z-0"
-      />
-
-      {/* 2. Soft Atmospheric Lighting Gradient Overlay */}
-      <div className="fixed inset-0 pointer-events-none z-[1] bg-gradient-to-b from-[#060a18]/45 via-[#080e26]/15 to-[#0a0618]/50" />
+      {/* 1. Live Weather Background with Falling Rain & Live Thunderstorm Lightning */}
+      <LiveWeatherBackground isLive={true} />
 
       {/* Toast Notification */}
       <AnimatePresence>
