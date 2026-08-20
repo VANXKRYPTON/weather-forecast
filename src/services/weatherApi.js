@@ -337,6 +337,7 @@ export const getComprehensiveWeather = async (target, unit = "metric") => {
     if (!isoStr) return "--";
     const d = new Date(isoStr);
     return new Intl.DateTimeFormat("en-US", {
+      timeZone: meteoData.timezone || "UTC",
       hour: "numeric",
       minute: "2-digit",
       hour12: true,
@@ -462,6 +463,8 @@ export const getComprehensiveWeather = async (target, unit = "metric") => {
     sunsetTimestamp: sunsetTs,
     dt: Math.floor(Date.now() / 1000),
     timezone: meteoData.utc_offset_seconds || 0,
+    timezoneOffset: meteoData.utc_offset_seconds || 0,
+    timezoneName: meteoData.timezone || "",
     rainChance: raw5Days[0].rainChance,
     cloudCover: 66,
     summaryText: summaryText,

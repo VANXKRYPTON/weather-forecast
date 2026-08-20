@@ -1,23 +1,25 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { MapPin, Droplets, Wind, Gauge, Eye, Sun } from "lucide-react";
 import stormHeroCloud from "../assets/images/storm_hero_cloud.jpg";
 
 export default function HeroWeatherCard({ weather, unit = "metric" }) {
   if (!weather) return null;
 
-  // Format local date and time using timezone offset
-  const localDateObj = getCityLocalDate(weather.dt, weather.timezone);
-  const dateFormatted = localDateObj.toLocaleDateString("en-US", {
-    weekday: "long",
-    month: "short",
-    day: "numeric",
-    year: "numeric",
-  });
-  const timeFormatted = localDateObj.toLocaleTimeString("en-US", {
-    hour: "2-digit",
-    minute: "2-digit",
-    hour12: true,
-  });
+  // Live ticking clock for the target city's exact timezone
+  const [currentTick, setCurrentTick] = useState(Date.now());
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setCurrentTick(Date.now());
+    }, 1000);
+    return () => clearInterval(timer);
+  }, [weather.city, weather.timezoneName, weather.timezoneOffset]);
+
+  const { dateFormatted, timeFormatted } = getCityFormattedDateTime(
+    weather.timezoneName,
+    weather.timezoneOffset ?? weather.timezone,
+    currentTick
+  );
 
   const tempNum = typeof weather.temp === "number" ? weather.temp : 34.1;
   const tempFormatted = Number.isInteger(tempNum) ? `${tempNum}.0` : `${tempNum}`;
@@ -152,8 +154,51 @@ export default function HeroWeatherCard({ weather, unit = "metric" }) {
   );
 }
 
-function getCityLocalDate(dt, timezoneOffsetSeconds = 0) {
-  if (!dt) return new Date();
-  const cityMs = (dt + timezoneOffsetSeconds) * 1000;
-  return new Date(cityMs);
+/**
+ * Accurately formats date and time in the searched city's local timezone
+ */
+export function getCityFormattedDateTime(timezoneName, timezoneOffsetSeconds = 0, currentTimestampMs) {
+  const timestamp = currentTimestampMs || Date.now();
+
+  // 1. Primary: Use city's official IANA timezone (e.g. "Asia/Kolkata", "Asia/Tokyo", "Europe/London", "America/New_York")
+  if (timezoneName && typeof timezoneName === "string" && timezoneName !== "auto") {
+    try {
+      const dateFormatted = new Intl.DateTimeFormat("en-US", {
+        timeZone: timezoneName,
+        weekday: "long",
+        month: "short",
+        day: "numeric",
+        year: "numeric",
+      }).format(timestamp);
+
+      const timeFormatted = new Intl.DateTimeFormat("en-US", {
+        timeZone: timezoneName,
+        hour: "2-digit",
+        minute: "2-digit",
+        hour12: true,
+      }).format(timestamp);
+
+      return { dateFormatted, timeFormatted };
+    } catch (e) {
+      console.warn("IANA timezone format error:", e);
+    }
+  }
+
+  // 2. Fallback: UTC calculation without local browser double-offset
+  const targetDate = new Date(timestamp + (timezoneOffsetSeconds * 1000));
+  return {
+    dateFormatted: targetDate.toLocaleDateString("en-US", {
+      timeZone: "UTC",
+      weekday: "long",
+      month: "short",
+      day: "numeric",
+      year: "numeric",
+    }),
+    timeFormatted: targetDate.toLocaleTimeString("en-US", {
+      timeZone: "UTC",
+      hour: "2-digit",
+      minute: "2-digit",
+      hour12: true,
+    }),
+  };
 }
