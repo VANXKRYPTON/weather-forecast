@@ -5,7 +5,6 @@ import {
   History,
   BarChart3,
   Map,
-  Sparkles,
   MapPin,
   ChevronRight,
   Clock,
@@ -18,7 +17,7 @@ import {
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
-// Landmark color accents for the 8 popular destinations matching Image 1 exactly
+// Landmark color accents for the 8 popular destinations
 const POPULAR_DESTINATIONS = [
   { name: "Tokyo", icon: "tower", color: "#f43f5e", bg: "rgba(244, 63, 94, 0.15)" },
   { name: "London", icon: "bigben", color: "#f59e0b", bg: "rgba(245, 158, 11, 0.15)" },
@@ -46,14 +45,14 @@ const CITY_SNAPSHOTS = {
 function renderWeatherIcon(type) {
   switch (type) {
     case "sun":
-      return <Sun size={15} className="text-yellow-400 shrink-0 stroke-[2.2]" />;
+      return <Sun size={16} className="text-yellow-400 shrink-0 stroke-[2.2]" />;
     case "cloud-sun":
-      return <CloudSun size={15} className="text-amber-300 shrink-0 stroke-[2.2]" />;
+      return <CloudSun size={16} className="text-amber-300 shrink-0 stroke-[2.2]" />;
     case "cloud-rain":
-      return <CloudRain size={15} className="text-blue-400 shrink-0 stroke-[2.2]" />;
+      return <CloudRain size={16} className="text-blue-400 shrink-0 stroke-[2.2]" />;
     case "cloud":
     default:
-      return <Cloud size={15} className="text-gray-300 shrink-0 stroke-[2.2]" />;
+      return <Cloud size={16} className="text-gray-300 shrink-0 stroke-[2.2]" />;
   }
 }
 
@@ -122,7 +121,6 @@ export default function DrawerMenu({
   const [localRecent, setLocalRecent] = useState(recentSearches);
 
   useEffect(() => {
-    // If recent searches is passed, ensure clean default matching reference if empty
     if (recentSearches && recentSearches.length > 0) {
       setLocalRecent(recentSearches);
     } else {
@@ -146,118 +144,128 @@ export default function DrawerMenu({
     <AnimatePresence>
       {isOpen && (
         <>
-          {/* 1. Backdrop Blur Overlay */}
+          {/* 1. Dark Backdrop Blur Overlay */}
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             onClick={onClose}
-            className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm"
+            className="fixed inset-0 z-50 bg-black/65 backdrop-blur-sm"
           />
 
-          {/* 2. Floating Card Dialog Panel matching 1:1 Reference Image */}
-          <div className="fixed inset-0 z-50 pointer-events-none flex justify-end p-3 sm:p-4 md:p-5">
+          {/* 2. Centered/Right-aligned Floating Mobile Panel / Sidebar */}
+          <div className="fixed inset-0 z-50 pointer-events-none flex justify-end p-3 sm:p-5 md:p-6">
             <motion.div
               initial={{ x: "110%", opacity: 0 }}
               animate={{ x: 0, opacity: 1 }}
               exit={{ x: "110%", opacity: 0 }}
               transition={{ type: "spring", damping: 30, stiffness: 250 }}
-              className="pointer-events-auto w-full max-w-[435px] h-fit max-h-[96vh] rounded-[28px] bg-[#070c20]/95 border border-blue-500/20 shadow-[0_20px_60px_rgba(0,0,0,0.85)] backdrop-blur-3xl p-5 md:p-6 overflow-y-auto flex flex-col justify-between select-none scrollbar-thin scrollbar-thumb-blue-500/20"
+              className="pointer-events-auto w-full max-w-[410px] h-fit max-h-[96vh] rounded-[30px] bg-[#070c20]/95 border border-blue-400/20 shadow-[0_25px_70px_rgba(0,0,0,0.9),inset_0_1px_1px_rgba(255,255,255,0.08)] backdrop-blur-3xl pt-6 px-6 pb-5 overflow-y-auto flex flex-col justify-between select-none scrollbar-thin scrollbar-thumb-blue-500/20"
             >
-              <div className="space-y-4 md:space-y-4.5">
-                {/* Header: App Icon, Title, and Close Pill */}
+              <div className="space-y-[22px]">
+                {/* Header Area */}
                 <div className="flex items-center justify-between pb-1">
-                  <div className="flex items-center gap-3">
-                    <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-[#38bdf8] via-[#2563eb] to-[#1d4ed8] p-0.5 shadow-lg shadow-blue-500/30 flex items-center justify-center shrink-0">
-                      <div className="w-full h-full rounded-[14px] bg-gradient-to-br from-[#3b82f6] to-[#1d4ed8] flex items-center justify-center">
-                        <CloudSun size={24} className="text-white drop-shadow-md" />
+                  {/* Left: App Icon + Title Stack */}
+                  <div className="flex items-center gap-3.5">
+                    {/* App Icon Container: 56px, rounded 18px, blue gradient fill, slight glow */}
+                    <div className="w-14 h-14 rounded-[18px] bg-gradient-to-br from-[#38bdf8] via-[#2563eb] to-[#1d4ed8] p-0.5 shadow-lg shadow-blue-500/35 flex items-center justify-center shrink-0">
+                      <div className="w-full h-full rounded-[16px] bg-gradient-to-br from-[#3b82f6] to-[#1d4ed8] flex items-center justify-center">
+                        <CloudSun size={26} className="text-white drop-shadow-md" />
                       </div>
                     </div>
 
+                    {/* Text Stack */}
                     <div>
-                      <h2 className="text-xl font-bold text-white tracking-tight leading-tight">
+                      <h2 className="text-[22px] font-bold text-white tracking-tight leading-tight">
                         Weather <span className="text-[#38bdf8]">Dashboard</span>
                       </h2>
-                      <p className="text-xs text-gray-400 font-normal mt-0.5">Global Forecast Pro</p>
+                      <p className="text-[13px] text-[#94a3b8] font-normal mt-0.5">
+                        Global Forecast Pro
+                      </p>
                     </div>
                   </div>
 
+                  {/* Right: Circular Close Button */}
                   <button
                     onClick={onClose}
-                    className="w-10 h-10 rounded-2xl bg-white/5 hover:bg-white/10 border border-white/10 flex items-center justify-center text-gray-400 hover:text-white transition-all hover:scale-105 shrink-0"
+                    className="w-11 h-11 rounded-[16px] bg-[#111838]/80 hover:bg-[#182352] border border-white/10 flex items-center justify-center text-gray-400 hover:text-white transition-all hover:scale-105 shrink-0 shadow-sm"
                     aria-label="Close menu"
                   >
-                    <X size={18} />
+                    <X size={19} />
                   </button>
                 </div>
 
-                {/* Section 1: FEATURES & VIEWS */}
+                {/* Section 1: Features & Views */}
                 <div>
-                  <div className="flex items-center gap-1.5 mb-2.5 text-gray-400">
+                  {/* Section Label */}
+                  <div className="flex items-center gap-2 mb-3 text-[#94a3b8]">
                     <Grid size={13} className="text-blue-400" />
-                    <span className="text-[11px] font-bold uppercase tracking-wider text-gray-400">
+                    <span className="text-[12px] font-semibold uppercase tracking-wider text-[#94a3b8]">
                       Features & Views
                     </span>
                   </div>
 
-                  <div className="grid grid-cols-2 gap-2.5">
-                    {/* Hourly Chart Tile */}
+                  {/* 2-Column Row Cards */}
+                  <div className="grid grid-cols-2 gap-3.5">
+                    {/* Card 1: Hourly Chart */}
                     <button
                       onClick={() => {
                         onOpenHourlyChart?.();
                         onClose();
                       }}
-                      className="flex items-center justify-between p-3 rounded-2xl bg-[#0e163b]/85 hover:bg-[#141f4f] border border-white/5 hover:border-blue-400/30 transition-all group"
+                      className="h-[90px] rounded-[18px] p-4 bg-[#0c1438]/90 hover:bg-[#111c4d] border border-white/5 hover:border-blue-400/30 transition-all flex items-center justify-between group shadow-sm text-left"
                     >
-                      <div className="flex items-center gap-2.5 min-w-0">
-                        <div className="w-8 h-8 rounded-xl bg-blue-500/20 text-blue-400 flex items-center justify-center group-hover:scale-110 transition-transform shrink-0">
-                          <BarChart3 size={16} />
+                      <div className="flex items-center gap-3 min-w-0">
+                        <div className="w-10 h-10 rounded-xl bg-blue-500/20 text-blue-400 flex items-center justify-center group-hover:scale-110 transition-transform shrink-0">
+                          <BarChart3 size={18} />
                         </div>
-                        <div className="text-left truncate">
-                          <p className="text-xs font-bold text-white leading-tight">Hourly Chart</p>
-                          <p className="text-[10px] text-gray-400 leading-tight mt-0.5">24-hour trends</p>
+                        <div className="truncate">
+                          <p className="text-sm font-bold text-white leading-tight">Hourly Chart</p>
+                          <p className="text-[11px] text-[#94a3b8] leading-tight mt-1">24-hour trends</p>
                         </div>
                       </div>
-                      <ChevronRight size={14} className="text-gray-500 group-hover:text-white transition-colors shrink-0 ml-1" />
+                      <ChevronRight size={16} className="text-gray-500 group-hover:text-white transition-colors shrink-0 ml-1" />
                     </button>
 
-                    {/* Weather Map Tile */}
+                    {/* Card 2: Weather Map */}
                     <button
                       onClick={() => {
                         onOpenMap?.();
                         onClose();
                       }}
-                      className="flex items-center justify-between p-3 rounded-2xl bg-[#0e163b]/85 hover:bg-[#141f4f] border border-white/5 hover:border-cyan-400/30 transition-all group"
+                      className="h-[90px] rounded-[18px] p-4 bg-[#0c1438]/90 hover:bg-[#111c4d] border border-white/5 hover:border-cyan-400/30 transition-all flex items-center justify-between group shadow-sm text-left"
                     >
-                      <div className="flex items-center gap-2.5 min-w-0">
-                        <div className="w-8 h-8 rounded-xl bg-cyan-500/20 text-cyan-400 flex items-center justify-center group-hover:scale-110 transition-transform shrink-0">
-                          <Map size={16} />
+                      <div className="flex items-center gap-3 min-w-0">
+                        <div className="w-10 h-10 rounded-xl bg-cyan-500/20 text-cyan-400 flex items-center justify-center group-hover:scale-110 transition-transform shrink-0">
+                          <Map size={18} />
                         </div>
-                        <div className="text-left truncate">
-                          <p className="text-xs font-bold text-white leading-tight">Weather Map</p>
-                          <p className="text-[10px] text-gray-400 leading-tight mt-0.5">Interactive radar</p>
+                        <div className="truncate">
+                          <p className="text-sm font-bold text-white leading-tight">Weather Map</p>
+                          <p className="text-[11px] text-[#94a3b8] leading-tight mt-1">Interactive radar</p>
                         </div>
                       </div>
-                      <ChevronRight size={14} className="text-gray-500 group-hover:text-white transition-colors shrink-0 ml-1" />
+                      <ChevronRight size={16} className="text-gray-500 group-hover:text-white transition-colors shrink-0 ml-1" />
                     </button>
                   </div>
                 </div>
 
-                {/* Section 2: FAVORITE CITIES */}
+                {/* Section 2: Favorite Cities */}
                 <div>
-                  <div className="flex items-center justify-between mb-2.5">
-                    <div className="flex items-center gap-1.5 text-gray-400">
-                      <Heart size={13} className="text-pink-400 fill-pink-400/20" />
-                      <span className="text-[11px] font-bold uppercase tracking-wider text-gray-400">
+                  {/* Section Label Row */}
+                  <div className="flex items-center justify-between mb-3">
+                    <div className="flex items-center gap-2 text-[#94a3b8]">
+                      <Heart size={14} className="text-pink-400 fill-pink-400/20" />
+                      <span className="text-[12px] font-semibold uppercase tracking-wider text-[#94a3b8]">
                         Favorite Cities
                       </span>
                     </div>
-                    <span className="text-[11px] font-bold text-pink-400">
+                    <span className="text-[12px] font-bold text-pink-400">
                       {favorites.length} saved
                     </span>
                   </div>
 
-                  <div className="space-y-2">
+                  {/* Vertical Stack List Rows */}
+                  <div className="space-y-2.5">
                     {favorites.map((cityName) => {
                       const snap = CITY_SNAPSHOTS[cityName.toLowerCase()] || { temp: "24°C", icon: "sun" };
                       return (
@@ -267,23 +275,27 @@ export default function DrawerMenu({
                             onSelectCity?.(cityName);
                             onClose();
                           }}
-                          className="w-full flex items-center justify-between p-2.5 px-3 rounded-2xl bg-[#0e163b]/80 hover:bg-[#141f4f] border border-white/5 hover:border-pink-400/30 transition-all group"
+                          className="w-full h-[64px] rounded-[18px] px-4 bg-[#0c1438]/90 hover:bg-[#111c4d] border border-white/5 hover:border-pink-400/30 transition-all flex items-center justify-between group shadow-sm text-left"
                         >
-                          <div className="flex items-center gap-2.5 min-w-0">
-                            <div className="w-8 h-8 rounded-xl bg-pink-500/15 text-pink-400 flex items-center justify-center group-hover:scale-110 transition-transform shrink-0">
-                              <MapPin size={15} />
+                          {/* Left: Icon + City Name */}
+                          <div className="flex items-center gap-3 min-w-0">
+                            <div className="w-9 h-9 rounded-xl bg-pink-500/15 text-pink-400 flex items-center justify-center group-hover:scale-110 transition-transform shrink-0">
+                              <MapPin size={16} />
                             </div>
-                            <span className="text-xs md:text-sm font-semibold text-white group-hover:text-pink-200 transition-colors truncate">
+                            <span className="text-[15px] font-semibold text-white group-hover:text-pink-200 transition-colors truncate">
                               {cityName}
                             </span>
                           </div>
 
+                          {/* Right: Temp + Weather Icon + Chevron */}
                           <div className="flex items-center gap-2.5 shrink-0 ml-2">
-                            <span className="text-xs text-gray-300 font-medium">{snap.temp}</span>
-                            <div className="w-4 flex items-center justify-center">
+                            <span className="text-[14px] font-medium text-[#cbd5e1] min-w-[36px] text-right">
+                              {snap.temp}
+                            </span>
+                            <div className="w-5 flex items-center justify-center">
                               {renderWeatherIcon(snap.icon)}
                             </div>
-                            <ChevronRight size={14} className="text-gray-500 group-hover:text-white group-hover:translate-x-0.5 transition-all" />
+                            <ChevronRight size={16} className="text-gray-500 group-hover:text-white group-hover:translate-x-0.5 transition-all ml-1" />
                           </div>
                         </button>
                       );
@@ -291,12 +303,13 @@ export default function DrawerMenu({
                   </div>
                 </div>
 
-                {/* Section 3: RECENT SEARCHES */}
+                {/* Section 3: Recent Searches */}
                 <div>
-                  <div className="flex items-center justify-between mb-2.5">
-                    <div className="flex items-center gap-1.5 text-gray-400">
-                      <History size={13} className="text-blue-400" />
-                      <span className="text-[11px] font-bold uppercase tracking-wider text-gray-400">
+                  {/* Section Label Row */}
+                  <div className="flex items-center justify-between mb-3">
+                    <div className="flex items-center gap-2 text-[#94a3b8]">
+                      <History size={14} className="text-blue-400" />
+                      <span className="text-[12px] font-semibold uppercase tracking-wider text-[#94a3b8]">
                         Recent Searches
                       </span>
                     </div>
@@ -304,16 +317,17 @@ export default function DrawerMenu({
                     {localRecent.length > 0 && (
                       <button
                         onClick={handleClearAll}
-                        className="text-[11px] font-bold text-[#38bdf8] hover:underline transition-all cursor-pointer"
+                        className="text-[12px] font-bold text-[#38bdf8] hover:underline transition-all cursor-pointer"
                       >
                         Clear all
                       </button>
                     )}
                   </div>
 
-                  <div className="space-y-2">
+                  {/* Vertical Stack List Rows */}
+                  <div className="space-y-2.5">
                     {localRecent.length === 0 ? (
-                      <div className="p-3 rounded-2xl bg-[#0e163b]/50 border border-white/5 text-center text-xs text-gray-400">
+                      <div className="p-3.5 rounded-[18px] bg-[#0c1438]/50 border border-white/5 text-center text-xs text-gray-400">
                         No recent searches
                       </div>
                     ) : (
@@ -326,28 +340,37 @@ export default function DrawerMenu({
                               onSelectCity?.(cityName);
                               onClose();
                             }}
-                            className="w-full flex items-center justify-between p-2.5 px-3 rounded-2xl bg-[#0e163b]/80 hover:bg-[#141f4f] border border-white/5 hover:border-blue-400/30 transition-all cursor-pointer group"
+                            className="w-full h-[60px] rounded-[18px] px-4 bg-[#0c1438]/90 hover:bg-[#111c4d] border border-white/5 hover:border-blue-400/30 transition-all flex items-center justify-between cursor-pointer group shadow-sm text-left"
                           >
-                            <div className="flex items-center gap-2.5 min-w-0">
-                              <div className="w-8 h-8 rounded-xl bg-blue-500/15 text-blue-400 flex items-center justify-center group-hover:scale-110 transition-transform shrink-0">
-                                <Clock size={15} />
+                            {/* Left: Blue Icon Badge + City Name */}
+                            <div className="flex items-center gap-3 min-w-0">
+                              <div className="w-9 h-9 rounded-xl bg-blue-500/15 text-blue-400 flex items-center justify-center group-hover:scale-110 transition-transform shrink-0">
+                                <Clock size={16} />
                               </div>
-                              <span className="text-xs md:text-sm font-semibold text-white group-hover:text-blue-200 transition-colors truncate">
+                              <span className="text-[15px] font-semibold text-white group-hover:text-blue-200 transition-colors truncate">
                                 {cityName}
                               </span>
                             </div>
 
+                            {/* Right: Temp + Weather Icon + Divider + Close Button */}
                             <div className="flex items-center gap-2.5 shrink-0 ml-2">
-                              <span className="text-xs text-gray-300 font-medium">{snap.temp}</span>
-                              <div className="w-4 flex items-center justify-center">
+                              <span className="text-[14px] font-medium text-[#cbd5e1] min-w-[36px] text-right">
+                                {snap.temp}
+                              </span>
+                              <div className="w-5 flex items-center justify-center">
                                 {renderWeatherIcon(snap.icon)}
                               </div>
+
+                              {/* Thin Divider Line */}
+                              <div className="h-4 w-[1px] bg-white/10 mx-1" />
+
+                              {/* Small X button at far right */}
                               <button
                                 onClick={(e) => handleRemoveItem(e, cityName)}
-                                className="w-6 h-6 rounded-lg flex items-center justify-center text-gray-500 hover:text-red-400 hover:bg-white/5 transition-all"
+                                className="w-7 h-7 rounded-lg flex items-center justify-center text-gray-500 hover:text-red-400 hover:bg-white/5 transition-all"
                                 title="Remove"
                               >
-                                <X size={13} />
+                                <X size={14} />
                               </button>
                             </div>
                           </div>
@@ -357,16 +380,18 @@ export default function DrawerMenu({
                   </div>
                 </div>
 
-                {/* Section 4: POPULAR DESTINATIONS (4x2 Grid Matching Image Exactly) */}
+                {/* Section 4: Popular Destinations */}
                 <div>
-                  <div className="flex items-center gap-1.5 mb-2.5 text-gray-400">
-                    <Star size={13} className="text-amber-400 fill-amber-400" />
-                    <span className="text-[11px] font-bold uppercase tracking-wider text-gray-400">
+                  {/* Section Label */}
+                  <div className="flex items-center gap-2 mb-3 text-[#94a3b8]">
+                    <Star size={14} className="text-amber-400 fill-amber-400" />
+                    <span className="text-[12px] font-semibold uppercase tracking-wider text-[#94a3b8]">
                       Popular Destinations
                     </span>
                   </div>
 
-                  <div className="grid grid-cols-4 gap-2">
+                  {/* 2-Row Grid of Pill-Shaped Chips */}
+                  <div className="grid grid-cols-4 gap-3">
                     {POPULAR_DESTINATIONS.map((dest) => (
                       <button
                         key={dest.name}
@@ -374,15 +399,17 @@ export default function DrawerMenu({
                           onSelectCity?.(dest.name);
                           onClose();
                         }}
-                        className="flex items-center gap-2 p-2.5 px-2.5 rounded-2xl bg-[#0e163b]/85 hover:bg-[#141f4f] border border-white/5 hover:border-white/20 transition-all hover:scale-[1.03] active:scale-95 group shadow-sm min-w-0"
+                        className="h-[54px] rounded-[18px] px-3 bg-[#0c1438]/90 hover:bg-[#111c4d] border border-white/5 hover:border-white/20 transition-all hover:scale-[1.02] active:scale-95 flex items-center gap-2.5 group shadow-sm min-w-0"
                       >
+                        {/* Landmark Icon in Squircle */}
                         <div
-                          className="w-6 h-6 rounded-lg flex items-center justify-center shrink-0 transition-transform group-hover:scale-110"
+                          className="w-7 h-7 rounded-xl flex items-center justify-center shrink-0 transition-transform group-hover:scale-110"
                           style={{ backgroundColor: dest.bg }}
                         >
                           {renderDestinationIcon(dest.icon, dest.color)}
                         </div>
-                        <span className="text-[11px] font-bold text-gray-200 group-hover:text-white truncate">
+                        {/* City Label */}
+                        <span className="text-[13px] font-semibold text-white group-hover:text-cyan-200 truncate">
                           {dest.name}
                         </span>
                       </button>
@@ -392,8 +419,8 @@ export default function DrawerMenu({
               </div>
 
               {/* Footer */}
-              <div className="pt-4 border-t border-white/10 flex items-center justify-center gap-2 text-xs text-gray-400">
-                <CloudSun size={15} className="text-amber-400" />
+              <div className="pt-4.5 mt-6 border-t border-white/10 flex items-center justify-start gap-2 text-[12px] text-[#94a3b8]">
+                <CloudSun size={16} className="text-amber-400" />
                 <span>Weather Dashboard Pro • v2.0</span>
               </div>
             </motion.div>
