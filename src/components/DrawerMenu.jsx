@@ -62,13 +62,13 @@ function renderDestinationIcon(type, color) {
     case "tower":
     case "eiffel":
       return (
-        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
           <path d="M12 2v4M9 6l3-4 3 4M6 22l4.5-12h3L18 22M8 17h8" />
         </svg>
       );
     case "bigben":
       return (
-        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
           <rect x="7" y="2" width="10" height="20" rx="2" />
           <circle cx="12" cy="8" r="2.5" />
           <path d="M12 14v4" />
@@ -76,26 +76,26 @@ function renderDestinationIcon(type, color) {
       );
     case "liberty":
       return (
-        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
           <path d="M12 2l2 4-2 4-2-4zM8 12h8l-2 10H10zM12 12v10" />
         </svg>
       );
     case "burj":
       return (
-        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
           <path d="M12 2v20M8 8l4-6 4 6M6 14l6-4 6 4M4 20l8-4 8 4" />
         </svg>
       );
     case "bridge":
       return (
-        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
           <path d="M3 18c3-4 6-6 9-6s6 2 9 6M3 18h18M6 12v6M18 12v6M12 6v12" />
         </svg>
       );
     case "monument":
     case "gateway":
     default:
-      return <Landmark size={17} style={{ color }} />;
+      return <Landmark size={16} style={{ color }} />;
   }
 }
 
@@ -141,20 +141,20 @@ export default function DrawerMenu({
             className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm"
           />
 
-          {/* 2. Floating Card Dialog Panel matching 1:1 Reference Image 2 */}
-          <div className="fixed inset-0 z-50 pointer-events-none flex justify-end p-3 sm:p-5 md:p-6">
+          {/* 2. Floating Card Dialog Panel matching 1:1 Reference Image */}
+          <div className="fixed inset-0 z-50 pointer-events-none flex justify-end p-4 sm:p-5 md:p-6">
             <motion.div
               initial={{ x: "110%", opacity: 0 }}
               animate={{ x: 0, opacity: 1 }}
               exit={{ x: "110%", opacity: 0 }}
               transition={{ type: "spring", damping: 30, stiffness: 240 }}
-              className="pointer-events-auto w-full max-w-[480px] h-full max-h-[96vh] rounded-[32px] bg-[#09102c]/95 border border-blue-500/20 shadow-[0_25px_70px_rgba(0,0,0,0.9)] backdrop-blur-3xl p-7 md:p-8 overflow-y-auto flex flex-col justify-between select-none scrollbar-thin scrollbar-thumb-blue-500/20"
+              className="pointer-events-auto w-full max-w-[500px] h-full max-h-[96vh] rounded-[32px] bg-[#09102c]/95 border border-blue-500/20 shadow-[0_25px_70px_rgba(0,0,0,0.9)] backdrop-blur-3xl p-7 md:p-8 overflow-y-auto flex flex-col justify-between select-none scrollbar-thin scrollbar-thumb-blue-500/20"
             >
               <div className="space-y-6 md:space-y-7">
                 {/* Header: App Icon, Title, and Close Pill */}
-                <div className="flex items-center justify-between pb-2">
+                <div className="flex items-center justify-between pb-1">
                   <div className="flex items-center gap-3.5">
-                    <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-[#4a85f6] to-[#2563eb] p-0.5 shadow-lg shadow-blue-500/30 flex items-center justify-center">
+                    <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-[#4a85f6] to-[#2563eb] p-0.5 shadow-lg shadow-blue-500/30 flex items-center justify-center shrink-0">
                       <div className="w-full h-full rounded-[14px] bg-gradient-to-br from-[#3b82f6] to-[#1d4ed8] flex items-center justify-center">
                         <CloudSun size={28} className="text-white drop-shadow-md" />
                       </div>
@@ -170,7 +170,7 @@ export default function DrawerMenu({
 
                   <button
                     onClick={onClose}
-                    className="w-11 h-11 rounded-2xl bg-[#131d42] hover:bg-[#1c2a5e] border border-white/10 flex items-center justify-center text-gray-400 hover:text-white transition-all hover:scale-105"
+                    className="w-11 h-11 rounded-2xl bg-[#131d42] hover:bg-[#1c2a5e] border border-white/10 flex items-center justify-center text-gray-400 hover:text-white transition-all hover:scale-105 shrink-0"
                     aria-label="Close menu"
                   >
                     <X size={20} />
@@ -196,7 +196,7 @@ export default function DrawerMenu({
                       className="flex items-center justify-between p-4 rounded-2xl bg-[#10193d]/85 hover:bg-[#152252] border border-white/5 hover:border-blue-400/30 transition-all group"
                     >
                       <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-xl bg-blue-500/20 text-blue-400 flex items-center justify-center group-hover:scale-110 transition-transform">
+                        <div className="w-10 h-10 rounded-xl bg-blue-500/20 text-blue-400 flex items-center justify-center group-hover:scale-110 transition-transform shrink-0">
                           <BarChart3 size={19} />
                         </div>
                         <div className="text-left">
@@ -204,7 +204,7 @@ export default function DrawerMenu({
                           <p className="text-[11px] text-gray-400 leading-tight mt-1">24-hour trends</p>
                         </div>
                       </div>
-                      <ChevronRight size={16} className="text-gray-500 group-hover:text-white transition-colors" />
+                      <ChevronRight size={16} className="text-gray-500 group-hover:text-white transition-colors shrink-0 ml-1" />
                     </button>
 
                     {/* Weather Map Tile */}
@@ -216,7 +216,7 @@ export default function DrawerMenu({
                       className="flex items-center justify-between p-4 rounded-2xl bg-[#10193d]/85 hover:bg-[#152252] border border-white/5 hover:border-cyan-400/30 transition-all group"
                     >
                       <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-xl bg-cyan-500/20 text-cyan-400 flex items-center justify-center group-hover:scale-110 transition-transform">
+                        <div className="w-10 h-10 rounded-xl bg-cyan-500/20 text-cyan-400 flex items-center justify-center group-hover:scale-110 transition-transform shrink-0">
                           <Map size={19} />
                         </div>
                         <div className="text-left">
@@ -224,7 +224,7 @@ export default function DrawerMenu({
                           <p className="text-[11px] text-gray-400 leading-tight mt-1">Interactive radar</p>
                         </div>
                       </div>
-                      <ChevronRight size={16} className="text-gray-500 group-hover:text-white transition-colors" />
+                      <ChevronRight size={16} className="text-gray-500 group-hover:text-white transition-colors shrink-0 ml-1" />
                     </button>
                   </div>
                 </div>
@@ -256,7 +256,7 @@ export default function DrawerMenu({
                           className="w-full flex items-center justify-between py-3.5 px-4 rounded-2xl bg-[#10193d]/80 hover:bg-[#162354] border border-white/5 hover:border-pink-400/30 transition-all group"
                         >
                           <div className="flex items-center gap-3.5">
-                            <div className="w-9 h-9 rounded-xl bg-pink-500/15 text-pink-400 flex items-center justify-center group-hover:scale-110 transition-transform">
+                            <div className="w-9 h-9 rounded-xl bg-pink-500/15 text-pink-400 flex items-center justify-center group-hover:scale-110 transition-transform shrink-0">
                               <MapPin size={17} />
                             </div>
                             <span className="text-sm font-bold text-white group-hover:text-pink-200 transition-colors">
@@ -264,10 +264,12 @@ export default function DrawerMenu({
                             </span>
                           </div>
 
-                          <div className="flex items-center gap-3">
-                            <span className="text-xs text-gray-300 font-medium">{snap.temp}</span>
-                            {renderWeatherIcon(snap.icon)}
-                            <ChevronRight size={16} className="text-gray-500 group-hover:text-white group-hover:translate-x-0.5 transition-all" />
+                          <div className="flex items-center gap-3 shrink-0">
+                            <span className="text-xs text-gray-300 font-medium min-w-[34px] text-right">{snap.temp}</span>
+                            <div className="w-5 flex items-center justify-center">
+                              {renderWeatherIcon(snap.icon)}
+                            </div>
+                            <ChevronRight size={16} className="text-gray-500 group-hover:text-white group-hover:translate-x-0.5 transition-all ml-0.5" />
                           </div>
                         </button>
                       );
@@ -313,7 +315,7 @@ export default function DrawerMenu({
                             className="w-full flex items-center justify-between py-3.5 px-4 rounded-2xl bg-[#10193d]/80 hover:bg-[#162354] border border-white/5 hover:border-blue-400/30 transition-all cursor-pointer group"
                           >
                             <div className="flex items-center gap-3.5">
-                              <div className="w-9 h-9 rounded-xl bg-blue-500/15 text-blue-400 flex items-center justify-center group-hover:scale-110 transition-transform">
+                              <div className="w-9 h-9 rounded-xl bg-blue-500/15 text-blue-400 flex items-center justify-center group-hover:scale-110 transition-transform shrink-0">
                                 <Clock size={17} />
                               </div>
                               <span className="text-sm font-bold text-white group-hover:text-blue-200 transition-colors">
@@ -321,12 +323,14 @@ export default function DrawerMenu({
                               </span>
                             </div>
 
-                            <div className="flex items-center gap-3">
-                              <span className="text-xs text-gray-300 font-medium">{snap.temp}</span>
-                              {renderWeatherIcon(snap.icon)}
+                            <div className="flex items-center gap-3 shrink-0">
+                              <span className="text-xs text-gray-300 font-medium min-w-[34px] text-right">{snap.temp}</span>
+                              <div className="w-5 flex items-center justify-center">
+                                {renderWeatherIcon(snap.icon)}
+                              </div>
                               <button
                                 onClick={(e) => handleRemoveItem(e, cityName)}
-                                className="w-7 h-7 rounded-lg flex items-center justify-center text-gray-500 hover:text-red-400 hover:bg-white/5 transition-all ml-0.5"
+                                className="w-7 h-7 rounded-lg flex items-center justify-center text-gray-500 hover:text-red-400 hover:bg-white/5 transition-all ml-1"
                                 title="Remove"
                               >
                                 <X size={15} />
@@ -348,7 +352,7 @@ export default function DrawerMenu({
                     </span>
                   </div>
 
-                  <div className="grid grid-cols-4 gap-3">
+                  <div className="grid grid-cols-4 gap-2.5">
                     {POPULAR_DESTINATIONS.map((dest) => (
                       <button
                         key={dest.name}
@@ -356,10 +360,10 @@ export default function DrawerMenu({
                           onSelectCity?.(dest.name);
                           onClose();
                         }}
-                        className="flex items-center gap-2.5 p-3 rounded-2xl bg-[#10193d]/85 hover:bg-[#162354] border border-white/5 hover:border-white/20 transition-all hover:scale-[1.03] active:scale-95 group shadow-sm"
+                        className="flex items-center justify-center gap-2 py-3 px-2 rounded-2xl bg-[#10193d]/85 hover:bg-[#162354] border border-white/5 hover:border-white/20 transition-all hover:scale-[1.03] active:scale-95 group shadow-sm"
                       >
                         <div
-                          className="w-8 h-8 rounded-xl flex items-center justify-center shrink-0 transition-transform group-hover:scale-110"
+                          className="w-7 h-7 rounded-xl flex items-center justify-center shrink-0 transition-transform group-hover:scale-110"
                           style={{ backgroundColor: dest.bg }}
                         >
                           {renderDestinationIcon(dest.icon, dest.color)}
