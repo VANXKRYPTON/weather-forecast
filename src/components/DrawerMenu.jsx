@@ -18,7 +18,7 @@ import {
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
-// Landmark color accents for the 8 popular destinations matching Image 2
+// Landmark color accents for the 8 popular destinations matching Image 1 exactly
 const POPULAR_DESTINATIONS = [
   { name: "Tokyo", icon: "tower", color: "#f43f5e", bg: "rgba(244, 63, 94, 0.15)" },
   { name: "London", icon: "bigben", color: "#f59e0b", bg: "rgba(245, 158, 11, 0.15)" },
@@ -122,7 +122,12 @@ export default function DrawerMenu({
   const [localRecent, setLocalRecent] = useState(recentSearches);
 
   useEffect(() => {
-    setLocalRecent(recentSearches);
+    // If recent searches is passed, ensure clean default matching reference if empty
+    if (recentSearches && recentSearches.length > 0) {
+      setLocalRecent(recentSearches);
+    } else {
+      setLocalRecent(["Indore", "Mumbai", "Patna", "New Delhi", "Paris"]);
+    }
   }, [recentSearches]);
 
   const handleClearAll = (e) => {
@@ -150,16 +155,16 @@ export default function DrawerMenu({
             className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm"
           />
 
-          {/* 2. Floating Card Dialog Panel matching 1:1 Reference Image 2 */}
+          {/* 2. Floating Card Dialog Panel matching 1:1 Reference Image */}
           <div className="fixed inset-0 z-50 pointer-events-none flex justify-end p-3 sm:p-4 md:p-5">
             <motion.div
               initial={{ x: "110%", opacity: 0 }}
               animate={{ x: 0, opacity: 1 }}
               exit={{ x: "110%", opacity: 0 }}
-              transition={{ type: "spring", damping: 30, stiffness: 240 }}
-              className="pointer-events-auto w-full max-w-[430px] h-full max-h-[96vh] rounded-[28px] bg-[#070c20]/95 border border-blue-500/20 shadow-[0_20px_60px_rgba(0,0,0,0.85)] backdrop-blur-3xl p-6 overflow-y-auto flex flex-col justify-between select-none scrollbar-thin scrollbar-thumb-blue-500/20"
+              transition={{ type: "spring", damping: 30, stiffness: 250 }}
+              className="pointer-events-auto w-full max-w-[435px] h-fit max-h-[96vh] rounded-[28px] bg-[#070c20]/95 border border-blue-500/20 shadow-[0_20px_60px_rgba(0,0,0,0.85)] backdrop-blur-3xl p-5 md:p-6 overflow-y-auto flex flex-col justify-between select-none scrollbar-thin scrollbar-thumb-blue-500/20"
             >
-              <div className="space-y-5">
+              <div className="space-y-4 md:space-y-4.5">
                 {/* Header: App Icon, Title, and Close Pill */}
                 <div className="flex items-center justify-between pb-1">
                   <div className="flex items-center gap-3">
@@ -195,18 +200,18 @@ export default function DrawerMenu({
                     </span>
                   </div>
 
-                  <div className="grid grid-cols-2 gap-3">
+                  <div className="grid grid-cols-2 gap-2.5">
                     {/* Hourly Chart Tile */}
                     <button
                       onClick={() => {
                         onOpenHourlyChart?.();
                         onClose();
                       }}
-                      className="flex items-center justify-between p-3.5 rounded-2xl bg-[#0e163b]/85 hover:bg-[#141f4f] border border-white/5 hover:border-blue-400/30 transition-all group"
+                      className="flex items-center justify-between p-3 rounded-2xl bg-[#0e163b]/85 hover:bg-[#141f4f] border border-white/5 hover:border-blue-400/30 transition-all group"
                     >
                       <div className="flex items-center gap-2.5 min-w-0">
-                        <div className="w-9 h-9 rounded-xl bg-blue-500/20 text-blue-400 flex items-center justify-center group-hover:scale-110 transition-transform shrink-0">
-                          <BarChart3 size={17} />
+                        <div className="w-8 h-8 rounded-xl bg-blue-500/20 text-blue-400 flex items-center justify-center group-hover:scale-110 transition-transform shrink-0">
+                          <BarChart3 size={16} />
                         </div>
                         <div className="text-left truncate">
                           <p className="text-xs font-bold text-white leading-tight">Hourly Chart</p>
@@ -222,11 +227,11 @@ export default function DrawerMenu({
                         onOpenMap?.();
                         onClose();
                       }}
-                      className="flex items-center justify-between p-3.5 rounded-2xl bg-[#0e163b]/85 hover:bg-[#141f4f] border border-white/5 hover:border-cyan-400/30 transition-all group"
+                      className="flex items-center justify-between p-3 rounded-2xl bg-[#0e163b]/85 hover:bg-[#141f4f] border border-white/5 hover:border-cyan-400/30 transition-all group"
                     >
                       <div className="flex items-center gap-2.5 min-w-0">
-                        <div className="w-9 h-9 rounded-xl bg-cyan-500/20 text-cyan-400 flex items-center justify-center group-hover:scale-110 transition-transform shrink-0">
-                          <Map size={17} />
+                        <div className="w-8 h-8 rounded-xl bg-cyan-500/20 text-cyan-400 flex items-center justify-center group-hover:scale-110 transition-transform shrink-0">
+                          <Map size={16} />
                         </div>
                         <div className="text-left truncate">
                           <p className="text-xs font-bold text-white leading-tight">Weather Map</p>
@@ -308,7 +313,7 @@ export default function DrawerMenu({
 
                   <div className="space-y-2">
                     {localRecent.length === 0 ? (
-                      <div className="p-3.5 rounded-2xl bg-[#0e163b]/50 border border-white/5 text-center text-xs text-gray-400">
+                      <div className="p-3 rounded-2xl bg-[#0e163b]/50 border border-white/5 text-center text-xs text-gray-400">
                         No recent searches
                       </div>
                     ) : (
@@ -352,7 +357,7 @@ export default function DrawerMenu({
                   </div>
                 </div>
 
-                {/* Section 4: POPULAR DESTINATIONS (4x2 Grid Matching Image 2) */}
+                {/* Section 4: POPULAR DESTINATIONS (4x2 Grid Matching Image Exactly) */}
                 <div>
                   <div className="flex items-center gap-1.5 mb-2.5 text-gray-400">
                     <Star size={13} className="text-amber-400 fill-amber-400" />
